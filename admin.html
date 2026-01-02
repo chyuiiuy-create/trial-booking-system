@@ -2,9 +2,7 @@
 <html lang="zh-HK">
 <!-- 
 ============================================
-試堂預約系統 - 管理員頁面
-============================================
-功能：查看所有提交、確認、拒絕、刪除
+試堂預約系統 - 管理員頁面（含登入）
 ============================================
 -->
 <head>
@@ -16,6 +14,85 @@
     <style>
         body { background: #f0f2f5; }
         .container { max-width: 900px; }
+        
+        /* 登入頁面樣式 */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .login-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .login-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .login-form .form-group { margin-bottom: 20px; }
+        .login-form .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .login-form .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .login-form .form-input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .login-error {
+            background: #fee;
+            color: #c0392b;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        /* 管理頁面樣式 */
+        .admin-page { display: none; }
+        .admin-page.active { display: block; }
         
         .admin-header {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -50,6 +127,35 @@
         }
         
         .admin-content { padding: 20px; }
+        
+        /* 重要提示 */
+        .important-notice {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            border: 1px solid #ffc107;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+        .important-notice h4 {
+            color: #856404;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        .important-notice p {
+            color: #856404;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .important-notice a {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
         
         .stats-grid {
             display: grid;
@@ -203,70 +309,125 @@
         .action-box-title { font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 12px; }
         .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
         
+        .logout-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
         @media (max-width: 600px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .submission-actions { flex-direction: column; }
             .action-buttons { flex-direction: column; }
+            .login-box { padding: 30px 20px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="admin-header">
-            <h1 class="admin-title">📊 預約管理系統</h1>
-            <p class="admin-subtitle">香港質心教育</p>
-            <div class="nav-tabs">
-                <button class="nav-tab active" onclick="filterSubmissions('all')">全部</button>
-                <button class="nav-tab" onclick="filterSubmissions('booking')">📝 新預約</button>
-                <button class="nav-tab" onclick="filterSubmissions('cancel')">❌ 取消</button>
-                <button class="nav-tab" onclick="filterSubmissions('change')">✏️ 更改</button>
-                <a href="index.html" class="nav-tab">← 返回網站</a>
+    <!-- ========================================
+         登入頁面
+    ======================================== -->
+    <div id="login-page" class="login-container">
+        <div class="login-box">
+            <div class="login-title">🔐 管理員登入</div>
+            <div class="login-subtitle">香港質心教育 - 預約管理系統</div>
+            
+            <div id="login-error" class="login-error">
+                用戶名或密碼錯誤
             </div>
-        </header>
-        
-        <div class="admin-content">
-            <!-- 統計 -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number" id="total-count">0</span>
-                    <span class="stat-label">總提交</span>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label class="form-label">用戶名</label>
+                    <input type="text" id="username" class="form-input" placeholder="請輸入用戶名" required>
                 </div>
-                <div class="stat-card booking">
-                    <span class="stat-number" id="booking-count">0</span>
-                    <span class="stat-label">新預約</span>
+                <div class="form-group">
+                    <label class="form-label">密碼</label>
+                    <input type="password" id="password" class="form-input" placeholder="請輸入密碼" required>
                 </div>
-                <div class="stat-card cancel">
-                    <span class="stat-number" id="cancel-count">0</span>
-                    <span class="stat-label">取消</span>
+                <button type="submit" class="login-btn">登入</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ========================================
+         管理頁面
+    ======================================== -->
+    <div id="admin-page" class="admin-page">
+        <div class="container">
+            <header class="admin-header">
+                <h1 class="admin-title">📊 預約管理系統</h1>
+                <p class="admin-subtitle">
+                    香港質心教育
+                    <button class="logout-btn" onclick="logout()">登出</button>
+                </p>
+                <div class="nav-tabs">
+                    <button class="nav-tab active" onclick="filterSubmissions('all')">全部</button>
+                    <button class="nav-tab" onclick="filterSubmissions('booking')">📝 新預約</button>
+                    <button class="nav-tab" onclick="filterSubmissions('cancel')">❌ 取消</button>
+                    <button class="nav-tab" onclick="filterSubmissions('change')">✏️ 更改</button>
+                    <a href="index.html" class="nav-tab">← 返回網站</a>
                 </div>
-                <div class="stat-card change">
-                    <span class="stat-number" id="change-count">0</span>
-                    <span class="stat-label">更改</span>
+            </header>
+            
+            <div class="admin-content">
+                <!-- 重要提示 -->
+                <div class="important-notice">
+                    <h4>⚠️ 重要：如何查看用戶提交的數據</h4>
+                    <p>用戶提交的數據保存在 Google Sheets 中（而非此頁面）。請點擊下方按鈕查看：</p>
+                    <a href="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit" target="_blank" id="sheets-link">📊 打開 Google Sheets 查看預約</a>
+                    <p style="margin-top: 10px; font-size: 12px;">（此頁面顯示的是本地瀏覽器緩存，僅供測試用）</p>
                 </div>
-                <div class="stat-card pending">
-                    <span class="stat-number" id="pending-count">0</span>
-                    <span class="stat-label">待處理</span>
+                
+                <!-- 統計 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-count">0</span>
+                        <span class="stat-label">總提交</span>
+                    </div>
+                    <div class="stat-card booking">
+                        <span class="stat-number" id="booking-count">0</span>
+                        <span class="stat-label">新預約</span>
+                    </div>
+                    <div class="stat-card cancel">
+                        <span class="stat-number" id="cancel-count">0</span>
+                        <span class="stat-label">取消</span>
+                    </div>
+                    <div class="stat-card change">
+                        <span class="stat-number" id="change-count">0</span>
+                        <span class="stat-label">更改</span>
+                    </div>
+                    <div class="stat-card pending">
+                        <span class="stat-number" id="pending-count">0</span>
+                        <span class="stat-label">待處理</span>
+                    </div>
+                </div>
+                
+                <!-- 提交列表 -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3 class="section-title">📋 本地緩存記錄</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary btn-sm" onclick="loadSubmissions()">🔄 刷新</button>
+                            <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑️ 清空</button>
+                        </div>
+                    </div>
+                    <div id="submissions-list"></div>
                 </div>
             </div>
             
-            <!-- 提交列表 -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3 class="section-title">📋 所有提交</h3>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-primary btn-sm" onclick="loadSubmissions()">🔄 刷新</button>
-                        <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑️ 清空</button>
-                    </div>
-                </div>
-                <div id="submissions-list">
-                    <!-- 由JavaScript生成 -->
-                </div>
-            </div>
+            <footer class="footer">
+                <p>&copy; 2024 香港質心教育 版權所有</p>
+            </footer>
         </div>
-        
-        <footer class="footer">
-            <p>&copy; 2024 香港質心教育 版權所有</p>
-        </footer>
     </div>
     
     <!-- 詳情模態框 -->
@@ -281,11 +442,58 @@
     </div>
     
     <script>
+        // ========================================
+        // 登入驗證
+        // ========================================
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = '88888888';
+        
+        // 檢查是否已登入
+        function checkLogin() {
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+            if (isLoggedIn) {
+                showAdminPage();
+            }
+        }
+        
+        // 登入表單處理
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                showAdminPage();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+                document.getElementById('password').value = '';
+            }
+        });
+        
+        // 顯示管理頁面
+        function showAdminPage() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('admin-page').classList.add('active');
+            loadSubmissions();
+        }
+        
+        // 登出
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            location.reload();
+        }
+        
+        // 頁面載入時檢查登入狀態
+        checkLogin();
+        
+        // ========================================
+        // 管理功能
+        // ========================================
         let allSubmissions = [];
         let currentFilter = 'all';
         let currentIndex = -1;
-        
-        document.addEventListener('DOMContentLoaded', loadSubmissions);
         
         function loadSubmissions() {
             allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
@@ -326,7 +534,8 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">📭</div>
-                        <p>暫無${currentFilter === 'all' ? '' : '此類型'}提交記錄</p>
+                        <p>暫無本地緩存記錄</p>
+                        <p style="font-size: 13px; color: #999;">請查看 Google Sheets 獲取真實數據</p>
                     </div>
                 `;
                 return;
@@ -336,7 +545,7 @@
                 const realIndex = allSubmissions.indexOf(sub);
                 const typeLabel = { booking: '新預約', cancel: '取消', change: '更改' }[sub.type] || '未知';
                 const meta = sub.type === 'booking' 
-                    ? `${sub.grade || ''} · ${sub.subject || ''} · ${sub.preferredDate || ''}`
+                    ? `${sub.grade || ''} · ${sub.subject || ''} · ${sub.selectedDates || sub.preferredDate || ''}`
                     : sub.type === 'cancel'
                     ? `取消：${sub.cancelDate || ''} ${sub.cancelTime || ''}`
                     : `${sub.originalDate || ''} → ${sub.newDate || ''}`;
@@ -350,10 +559,10 @@
                         </div>
                         <div class="submission-actions">
                             ${sub.status === '待處理' ? `
-                                <button class="btn btn-success btn-sm" onclick="sendConfirm(${realIndex})">✓ 確認</button>
-                                <button class="btn btn-warning btn-sm" onclick="sendReject(${realIndex})">✗ 拒絕</button>
+                                <button class="btn btn-success btn-sm" onclick="sendConfirm(${realIndex})">✓</button>
+                                <button class="btn btn-warning btn-sm" onclick="sendReject(${realIndex})">✗</button>
                             ` : `
-                                <span style="font-size: 12px; color: ${sub.status === '已確認' ? '#27ae60' : '#e74c3c'};">${sub.status}</span>
+                                <span style="font-size: 11px; color: ${sub.status === '已確認' ? '#27ae60' : '#e74c3c'};">${sub.status}</span>
                             `}
                             <button class="btn btn-danger btn-sm" onclick="deleteSubmission(${realIndex})">🗑️</button>
                         </div>
@@ -401,11 +610,11 @@
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">預約日期</span>
-                        <span class="detail-value">${sub.preferredDate || '-'}</span>
+                        <span class="detail-value">${sub.selectedDates || sub.preferredDate || '-'}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">預約時間</span>
-                        <span class="detail-value">${sub.preferredTime || '-'}</span>
+                        <span class="detail-value">${sub.selectedTimes || sub.preferredTime || '-'}</span>
                     </div>
                 `;
             } else if (sub.type === 'cancel') {
@@ -418,28 +627,24 @@
                         <span class="detail-label">取消時間</span>
                         <span class="detail-value" style="color: #e74c3c;">${sub.cancelTime || '-'}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">取消原因</span>
-                        <span class="detail-value">${sub.reason || '未說明'}</span>
-                    </div>
                 `;
             } else if (sub.type === 'change') {
                 detailsHtml += `
-                    <div class="detail-row" style="background: #fff3e0; margin: -10px -20px; padding: 10px 20px;">
+                    <div class="detail-row">
                         <span class="detail-label">原日期</span>
                         <span class="detail-value" style="text-decoration: line-through; color: #999;">${sub.originalDate || '-'}</span>
                     </div>
-                    <div class="detail-row" style="background: #fff3e0; margin: 0 -20px; padding: 10px 20px;">
+                    <div class="detail-row">
                         <span class="detail-label">原時間</span>
                         <span class="detail-value" style="text-decoration: line-through; color: #999;">${sub.originalTime || '-'}</span>
                     </div>
-                    <div class="detail-row" style="background: #e8f5e9; margin: 0 -20px; padding: 10px 20px;">
+                    <div class="detail-row">
                         <span class="detail-label">新日期</span>
-                        <span class="detail-value" style="color: #2e7d32; font-weight: 600;">${sub.newDate || '-'}</span>
+                        <span class="detail-value" style="color: #27ae60;">${sub.newDate || '-'}</span>
                     </div>
-                    <div class="detail-row" style="background: #e8f5e9; margin: 0 -20px 10px; padding: 10px 20px;">
+                    <div class="detail-row">
                         <span class="detail-label">新時間</span>
-                        <span class="detail-value" style="color: #2e7d32; font-weight: 600;">${sub.newTime || '-'}</span>
+                        <span class="detail-value" style="color: #27ae60;">${sub.newTime || '-'}</span>
                     </div>
                 `;
             }
@@ -447,7 +652,7 @@
             detailsHtml += `
                 <div class="detail-row">
                     <span class="detail-label">狀態</span>
-                    <span class="detail-value" style="color: ${sub.status === '已確認' ? '#27ae60' : sub.status === '已拒絕' ? '#e74c3c' : '#f39c12'}; font-weight: 600;">${sub.status || '待處理'}</span>
+                    <span class="detail-value" style="color: ${sub.status === '已確認' ? '#27ae60' : sub.status === '已拒絕' ? '#e74c3c' : '#f39c12'};">${sub.status || '待處理'}</span>
                 </div>
             `;
             
@@ -456,8 +661,8 @@
                     <div class="action-box">
                         <div class="action-box-title">✏️ 處理此申請</div>
                         <div class="action-buttons">
-                            <button class="btn btn-success" onclick="sendConfirm(${index}); closeModal();">✓ 發送確認通知</button>
-                            <button class="btn btn-danger" onclick="sendReject(${index}); closeModal();">✗ 發送拒絕通知</button>
+                            <button class="btn btn-success" onclick="sendConfirm(${index}); closeModal();">✓ 確認</button>
+                            <button class="btn btn-danger" onclick="sendReject(${index}); closeModal();">✗ 拒絕</button>
                             <button class="btn btn-warning" onclick="deleteSubmission(${index}); closeModal();">🗑️ 刪除</button>
                         </div>
                     </div>
@@ -470,80 +675,41 @@
         
         function closeModal() {
             document.getElementById('detail-modal').classList.remove('active');
-            currentIndex = -1;
         }
         
         function sendConfirm(index) {
-            const sub = allSubmissions[index];
-            if (!sub) return;
-            
-            sub.status = '已確認';
+            allSubmissions[index].status = '已確認';
             localStorage.setItem('submissions', JSON.stringify(allSubmissions));
-            
-            // 模擬發送確認通知
-            console.log('========================================');
-            console.log('📧 確認通知（模擬發送）');
-            console.log('========================================');
-            console.log('收件人：', sub.email || sub.phone);
-            console.log('類型：', sub.type === 'booking' ? '新預約確認' : sub.type === 'cancel' ? '取消確認' : '更改確認');
-            console.log('學生：', sub.studentName);
-            console.log('========================================');
-            
-            alert('✅ 已發送確認通知\n\n（請查看瀏覽器控制台）');
+            alert('✅ 已標記為確認');
             loadSubmissions();
         }
         
         function sendReject(index) {
-            const sub = allSubmissions[index];
-            if (!sub) return;
-            
-            const reason = prompt('請輸入拒絕原因（可選）：', '抱歉，暫時無法處理您的申請');
-            if (reason === null) return;
-            
-            sub.status = '已拒絕';
-            sub.rejectReason = reason;
+            allSubmissions[index].status = '已拒絕';
             localStorage.setItem('submissions', JSON.stringify(allSubmissions));
-            
-            // 模擬發送拒絕通知
-            console.log('========================================');
-            console.log('📧 拒絕通知（模擬發送）');
-            console.log('========================================');
-            console.log('收件人：', sub.email || sub.phone);
-            console.log('學生：', sub.studentName);
-            console.log('原因：', reason);
-            console.log('========================================');
-            
-            alert('❌ 已發送拒絕通知\n\n（請查看瀏覽器控制台）');
+            alert('❌ 已標記為拒絕');
             loadSubmissions();
         }
         
         function deleteSubmission(index) {
             if (!confirm('確定要刪除這條記錄嗎？')) return;
-            
             allSubmissions.splice(index, 1);
             localStorage.setItem('submissions', JSON.stringify(allSubmissions));
-            
-            alert('🗑️ 已刪除');
             loadSubmissions();
         }
         
         function clearAll() {
-            if (!confirm('確定要清空所有記錄嗎？此操作無法撤銷！')) return;
-            
+            if (!confirm('確定要清空所有記錄嗎？')) return;
             localStorage.removeItem('submissions');
             localStorage.removeItem('bookings');
             allSubmissions = [];
             loadSubmissions();
-            
-            alert('🗑️ 已清空所有記錄');
         }
         
-        // 點擊外部關閉
+        // 關閉模態框
         document.getElementById('detail-modal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
-        
-        // ESC關閉
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeModal();
         });

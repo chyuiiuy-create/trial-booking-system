@@ -4,44 +4,203 @@
 ============================================
 試堂預約系統 - 預約表單頁面
 ============================================
-說明：這是預約表單的主頁面
-家長可以在這裡填寫學生資料和選擇預約時間
-部署平台：Cloudflare Pages
-============================================
 -->
 <head>
-    <!-- 網頁編碼設定 -->
     <meta charset="UTF-8">
-    <!-- 響應式設計，適應手機和電腦螢幕 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 網頁標題 -->
     <title>試堂預約 - 香港質心教育</title>
-    <!-- 網頁描述（SEO優化） -->
-    <meta name="description" content="香港質心教育免費試堂預約系統，歡迎小一至中六學生預約試堂。">
-    <!-- 引入自定義CSS樣式 -->
+    <meta name="description" content="香港質心教育免費試堂預約系統">
     <link rel="stylesheet" href="style.css">
-    <!-- 引入Google字體（思源黑體） -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Google reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        /* 日曆樣式 */
+        .calendar-container {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .calendar {
+            flex: 1;
+            min-width: 280px;
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 8px;
+            font-size: 15px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+            padding: 6px 2px;
+            font-weight: 500;
+        }
+        .calendar-day {
+            text-align: center;
+            padding: 10px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .calendar-day:hover:not(.disabled):not(.empty) {
+            background: #e3f2fd;
+        }
+        .calendar-day.selected {
+            background: #2196f3;
+            color: white;
+            font-weight: 600;
+        }
+        .calendar-day.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .calendar-day.empty {
+            cursor: default;
+        }
+        .calendar-day.today {
+            border-color: #2196f3;
+        }
+        
+        /* 時間選擇器樣式 */
+        .time-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .time-option {
+            padding: 10px 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            background: white;
+        }
+        .time-option:hover {
+            border-color: #2196f3;
+            background: #e3f2fd;
+        }
+        .time-option.selected {
+            border-color: #2196f3;
+            background: #2196f3;
+            color: white;
+            font-weight: 500;
+        }
+        
+        /* 已選列表樣式 */
+        .selected-list {
+            background: #e8f5e9;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .selected-list-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        .selected-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .selected-item {
+            background: white;
+            border: 1px solid #a5d6a7;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .selected-item .remove {
+            color: #e74c3c;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        .add-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* reCAPTCHA 容器 */
+        .recaptcha-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .hint-box {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #1565c0;
+        }
+        
+        @media (max-width: 600px) {
+            .calendar-container {
+                flex-direction: column;
+            }
+            .time-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- ========================================
-         頁面主容器
-    ======================================== -->
     <div class="container">
         
-        <!-- ========================================
-             頁面標題區域
-        ======================================== -->
+        <!-- 頁面標題 -->
         <header class="header">
-            <!-- 補習社標誌/圖標 -->
             <div class="logo">
                 <span class="logo-icon">📚</span>
             </div>
-            <!-- 補習社名稱 -->
             <h1 class="title">香港質心教育</h1>
-            <!-- 頁面副標題 -->
             <p class="subtitle">免費試堂預約</p>
-            <!-- 導航按鈕 -->
+            <!-- 導航 -->
             <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <a href="index.html" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">📝 新預約</a>
                 <a href="cancel.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">❌ 取消預約</a>
@@ -49,55 +208,37 @@
             </div>
         </header>
 
-        <!-- ========================================
-             錯誤/提示訊息顯示區域
-        ======================================== -->
         <div id="alert-container"></div>
 
-        <!-- ========================================
-             預約表單
-        ======================================== -->
+        <!-- 預約表單 -->
         <form id="booking-form" class="booking-form">
             
-            <!-- ====================================
-                 學生資料區域
-            ==================================== -->
+            <!-- 學生資料 -->
             <div class="form-section">
                 <h2 class="section-title">
                     <span class="section-icon">👤</span>
                     學生資料
                 </h2>
                 
-                <!-- 學生姓名輸入框 -->
                 <div class="form-group">
                     <label for="student_name" class="form-label">
                         學生姓名（中文全稱）<span class="required">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="student_name" 
-                        name="student_name" 
-                        class="form-input" 
-                        placeholder="請輸入學生中文全名"
-                        required
-                    >
+                    <input type="text" id="student_name" name="student_name" class="form-input" placeholder="請輸入學生中文全名" required>
                 </div>
                 
-                <!-- 年級選擇下拉框 -->
                 <div class="form-group">
                     <label for="grade" class="form-label">
                         年級 <span class="required">*</span>
                     </label>
                     <select id="grade" name="grade" class="form-select" required>
                         <option value="" disabled selected>請選擇年級</option>
-                        <!-- 小學年級 -->
                         <option value="小一">小一</option>
                         <option value="小二">小二</option>
                         <option value="小三">小三</option>
                         <option value="小四">小四</option>
                         <option value="小五">小五</option>
                         <option value="小六">小六</option>
-                        <!-- 中學年級 -->
                         <option value="中一">中一</option>
                         <option value="中二">中二</option>
                         <option value="中三">中三</option>
@@ -107,21 +248,17 @@
                     </select>
                 </div>
                 
-                <!-- 科目選擇下拉框 -->
                 <div class="form-group">
                     <label for="subject" class="form-label">
                         科目 <span class="required">*</span>
                     </label>
                     <select id="subject" name="subject" class="form-select" required>
                         <option value="" disabled selected>請選擇科目</option>
-                        <!-- 語文科目 -->
                         <option value="中文">中文</option>
                         <option value="英文">英文</option>
-                        <!-- 數學科目 -->
                         <option value="必修數學">必修數學</option>
                         <option value="M2">M2（延伸數學二）</option>
                         <option value="奧數">奧數</option>
-                        <!-- 理科科目 -->
                         <option value="物理">物理</option>
                         <option value="生物">生物</option>
                         <option value="化學">化學</option>
@@ -129,97 +266,84 @@
                 </div>
             </div>
 
-            <!-- ====================================
-                 聯絡資料區域
-            ==================================== -->
+            <!-- 聯絡資料 -->
             <div class="form-section">
                 <h2 class="section-title">
                     <span class="section-icon">📞</span>
                     聯絡資料
                 </h2>
                 
-                <!-- 聯絡電話輸入框 -->
                 <div class="form-group">
                     <label for="phone" class="form-label">
                         聯絡電話 <span class="required">*</span>
                     </label>
-                    <input 
-                        type="tel" 
-                        id="phone" 
-                        name="phone" 
-                        class="form-input" 
-                        placeholder="例如：9123 4567"
-                        required
-                    >
+                    <input type="tel" id="phone" name="phone" class="form-input" placeholder="例如：9123 4567" required>
                     <span class="form-hint">請輸入香港手提電話號碼</span>
                 </div>
                 
-                <!-- 電郵地址輸入框（非必填） -->
                 <div class="form-group">
                     <label for="email" class="form-label">
                         電郵地址 <span class="optional">(選填)</span>
                     </label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        class="form-input" 
-                        placeholder="example@email.com"
-                    >
-                    <span class="form-hint">填寫後可收到預約確認郵件</span>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com">
                 </div>
             </div>
 
-            <!-- ====================================
-                 預約時間區域
-            ==================================== -->
+            <!-- 預約時間 -->
             <div class="form-section">
                 <h2 class="section-title">
                     <span class="section-icon">📅</span>
-                    預約時間
+                    預約日期和時間
                 </h2>
                 
-                <!-- 預約日期輸入 -->
-                <div class="form-group">
-                    <label for="booking_date" class="form-label">
-                        預約日期 <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="booking_date" 
-                        name="booking_date" 
-                        class="form-input" 
-                        placeholder="例如：1/15、1/23-1/25"
-                        required
-                    >
-                    <span class="form-hint">只限本月，可輸入單日或日期範圍</span>
+                <div class="hint-box">
+                    💡 請選擇您方便的日期和時間，可多選。選好後點擊「加入列表」。
                 </div>
                 
-                <!-- 預約時間輸入 -->
+                <!-- 日曆 -->
                 <div class="form-group">
-                    <label for="time_slot" class="form-label">
-                        預約時間 <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="time_slot" 
-                        name="time_slot" 
-                        class="form-input" 
-                        placeholder="例如：3pm-4pm、15:30-16:30"
-                        required
-                    >
-                    <span class="form-hint">可預約時間：10:00-21:00（30分鐘間隔）</span>
+                    <label class="form-label">選擇日期（可多選）</label>
+                    <div class="calendar-container">
+                        <div class="calendar" id="calendar-current"></div>
+                        <div class="calendar" id="calendar-next"></div>
+                    </div>
                 </div>
+                
+                <!-- 時間選擇 -->
+                <div class="form-group">
+                    <label class="form-label">選擇時段（可多選，按住 Ctrl 或拖曳選擇多個）</label>
+                    <div class="time-selector" id="time-selector"></div>
+                </div>
+                
+                <!-- 加入按鈕 -->
+                <button type="button" class="add-btn" id="add-btn" onclick="addToList()">
+                    ➕ 加入可選日期時間列表
+                </button>
+                
+                <!-- 已選列表 -->
+                <div class="selected-list" id="selected-list" style="display: none;">
+                    <div class="selected-list-title">✅ 已選擇的日期和時間：</div>
+                    <div class="selected-items" id="selected-items"></div>
+                </div>
+                
+                <!-- 隱藏欄位 -->
+                <input type="hidden" id="selected-dates-times" name="selected_dates_times">
             </div>
             
-            <!-- 提示信息 -->
-            <div style="background: #e3f2fd; border-radius: 10px; padding: 16px; margin-bottom: 20px; text-align: center;">
-                <span style="color: #1565c0; font-size: 14px;">💡 提示：如需預約多個時段，可多次提交此表單</span>
+            <!-- 提示 -->
+            <div class="hint-box" style="background: #fff3e0; color: #e65100;">
+                💡 提示：如需預約多個不同的時段組合，可多次提交此表單。
             </div>
 
-            <!-- ====================================
-                 提交按鈕
-            ==================================== -->
+            <!-- reCAPTCHA -->
+            <div class="recaptcha-container">
+                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+            </div>
+            <p style="text-align: center; font-size: 12px; color: #999; margin-bottom: 16px;">
+                請完成上方驗證以防止垃圾訊息
+            </p>
+
+            <!-- 提交按鈕 -->
             <div class="form-actions">
                 <button type="submit" id="submit-btn" class="submit-btn">
                     <span class="btn-icon">✓</span>
@@ -229,18 +353,14 @@
 
         </form>
 
-        <!-- ========================================
-             補習社資訊區域
-        ======================================== -->
+        <!-- 聯絡資訊 -->
         <div class="contact-info">
             <h3 class="info-title">聯絡我們</h3>
             <div class="info-items">
-                <!-- 地址 -->
                 <div class="info-item">
                     <span class="info-icon">📍</span>
                     <span class="info-text">九龍太子彌敦道761號太子藍馬之城3樓B室<br>(太子地鐵站C1出口)</span>
                 </div>
-                <!-- 電話 -->
                 <div class="info-item">
                     <span class="info-icon">📞</span>
                     <span class="info-text">5765 1008</span>
@@ -248,17 +368,289 @@
             </div>
         </div>
 
-        <!-- ========================================
-             頁面底部
-        ======================================== -->
         <footer class="footer">
             <p>&copy; 2024 香港質心教育 版權所有</p>
         </footer>
 
     </div>
 
-    <!-- 引入JavaScript文件 -->
-    <script src="script.js"></script>
+    <script>
+        // ========================================
+        // 日曆和時間選擇器
+        // ========================================
+        
+        const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+        const TIME_SLOTS = [];
+        
+        // 生成時間段（10:00-21:00，30分鐘間隔）
+        for (let h = 10; h <= 20; h++) {
+            TIME_SLOTS.push(`${h}:00-${h+1}:00`);
+            if (h < 20) {
+                TIME_SLOTS.push(`${h}:30-${h+1}:30`);
+            }
+        }
+        TIME_SLOTS.push('20:30-21:00');
+        
+        let selectedDates = [];
+        let selectedTimes = [];
+        let selectedList = []; // 最終選擇的日期時間組合
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCalendars();
+            renderTimeSelector();
+            initPhoneFormatter();
+            initFormSubmit();
+        });
+        
+        // 渲染日曆
+        function renderCalendars() {
+            const now = new Date();
+            renderCalendar('calendar-current', now.getFullYear(), now.getMonth());
+            
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            renderCalendar('calendar-next', nextMonth.getFullYear(), nextMonth.getMonth());
+        }
+        
+        function renderCalendar(containerId, year, month) {
+            const container = document.getElementById(containerId);
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
+                               '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let html = `
+                <div class="calendar-header">${year}年 ${monthNames[month]}</div>
+                <div class="calendar-grid">
+                    ${WEEKDAYS.map(d => `<div class="calendar-day-header">${d}</div>`).join('')}
+            `;
+            
+            // 空白格
+            for (let i = 0; i < startDay; i++) {
+                html += '<div class="calendar-day empty"></div>';
+            }
+            
+            // 日期
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = `${month + 1}/${day}`;
+                const isPast = date < today;
+                const isToday = date.getTime() === today.getTime();
+                const isSelected = selectedDates.includes(dateStr);
+                
+                let classes = 'calendar-day';
+                if (isPast) classes += ' disabled';
+                if (isToday) classes += ' today';
+                if (isSelected) classes += ' selected';
+                
+                html += `<div class="${classes}" data-date="${dateStr}" onclick="toggleDate('${dateStr}', ${isPast})">${day}</div>`;
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // 切換日期選擇
+        function toggleDate(dateStr, isPast) {
+            if (isPast) return;
+            
+            const index = selectedDates.indexOf(dateStr);
+            if (index > -1) {
+                selectedDates.splice(index, 1);
+            } else {
+                selectedDates.push(dateStr);
+            }
+            
+            // 更新UI
+            document.querySelectorAll('.calendar-day').forEach(el => {
+                if (el.dataset.date === dateStr) {
+                    el.classList.toggle('selected');
+                }
+            });
+            
+            updateAddButton();
+        }
+        
+        // 渲染時間選擇器
+        function renderTimeSelector() {
+            const container = document.getElementById('time-selector');
+            container.innerHTML = TIME_SLOTS.map(slot => 
+                `<div class="time-option" data-time="${slot}" onclick="toggleTime('${slot}')">${slot}</div>`
+            ).join('');
+        }
+        
+        // 切換時間選擇
+        function toggleTime(timeStr) {
+            const index = selectedTimes.indexOf(timeStr);
+            if (index > -1) {
+                selectedTimes.splice(index, 1);
+            } else {
+                selectedTimes.push(timeStr);
+            }
+            
+            document.querySelectorAll('.time-option').forEach(el => {
+                if (el.dataset.time === timeStr) {
+                    el.classList.toggle('selected');
+                }
+            });
+            
+            updateAddButton();
+        }
+        
+        // 更新加入按鈕狀態
+        function updateAddButton() {
+            const btn = document.getElementById('add-btn');
+            btn.disabled = selectedDates.length === 0 || selectedTimes.length === 0;
+        }
+        
+        // 加入列表
+        function addToList() {
+            if (selectedDates.length === 0 || selectedTimes.length === 0) {
+                alert('請先選擇日期和時間');
+                return;
+            }
+            
+            // 組合日期和時間
+            selectedDates.forEach(date => {
+                selectedTimes.forEach(time => {
+                    const combo = `${date} ${time}`;
+                    if (!selectedList.includes(combo)) {
+                        selectedList.push(combo);
+                    }
+                });
+            });
+            
+            // 清空當前選擇
+            selectedDates = [];
+            selectedTimes = [];
+            
+            // 更新UI
+            document.querySelectorAll('.calendar-day.selected').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.time-option.selected').forEach(el => el.classList.remove('selected'));
+            
+            renderSelectedList();
+            updateAddButton();
+        }
+        
+        // 渲染已選列表
+        function renderSelectedList() {
+            const container = document.getElementById('selected-list');
+            const itemsContainer = document.getElementById('selected-items');
+            const hiddenInput = document.getElementById('selected-dates-times');
+            
+            if (selectedList.length === 0) {
+                container.style.display = 'none';
+                hiddenInput.value = '';
+                return;
+            }
+            
+            container.style.display = 'block';
+            itemsContainer.innerHTML = selectedList.map((item, index) => 
+                `<div class="selected-item">
+                    <span>${item}</span>
+                    <span class="remove" onclick="removeFromList(${index})">✕</span>
+                </div>`
+            ).join('');
+            
+            hiddenInput.value = selectedList.join('; ');
+        }
+        
+        // 從列表移除
+        function removeFromList(index) {
+            selectedList.splice(index, 1);
+            renderSelectedList();
+        }
+        
+        // 電話格式化
+        function initPhoneFormatter() {
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '').substring(0, 8);
+                if (value.length > 4) {
+                    value = value.substring(0, 4) + ' ' + value.substring(4);
+                }
+                e.target.value = value;
+            });
+        }
+        
+        // 表單提交
+        function initFormSubmit() {
+            document.getElementById('booking-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 驗證
+                const studentName = document.getElementById('student_name').value.trim();
+                const grade = document.getElementById('grade').value;
+                const subject = document.getElementById('subject').value;
+                const phone = document.getElementById('phone').value.trim();
+                
+                if (!studentName || !grade || !subject || !phone) {
+                    alert('請填寫所有必填欄位');
+                    return;
+                }
+                
+                if (selectedList.length === 0) {
+                    alert('請選擇至少一個日期和時間');
+                    return;
+                }
+                
+                // 檢查 reCAPTCHA
+                const recaptchaResponse = grecaptcha.getResponse();
+                if (!recaptchaResponse) {
+                    alert('請完成驗證碼驗證');
+                    return;
+                }
+                
+                // 顯示載入
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">處理中...</span>';
+                
+                // 準備數據
+                const formData = {
+                    type: 'booking',
+                    id: 'BK' + Date.now().toString(36).toUpperCase(),
+                    timestamp: new Date().toLocaleString('zh-HK'),
+                    studentName: studentName,
+                    grade: grade,
+                    subject: subject,
+                    phone: phone,
+                    email: document.getElementById('email').value.trim() || '未提供',
+                    selectedDates: selectedList.join('; '),
+                    selectedTimes: '',
+                    status: '待處理'
+                };
+                
+                // 保存到本地存儲
+                const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+                submissions.unshift(formData);
+                localStorage.setItem('submissions', JSON.stringify(submissions));
+                
+                console.log('========================================');
+                console.log('📝 新預約提交');
+                console.log('========================================');
+                console.log(formData);
+                console.log('========================================');
+                
+                // 跳轉
+                setTimeout(function() {
+                    const params = new URLSearchParams({
+                        type: 'booking',
+                        name: studentName,
+                        grade: grade,
+                        subject: subject,
+                        date: selectedList.join('; '),
+                        time: ''
+                    });
+                    window.location.href = 'confirmation.html?' + params.toString();
+                }, 1000);
+            });
+        }
+    </script>
 </body>
 </html>
-

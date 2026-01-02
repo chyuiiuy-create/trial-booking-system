@@ -1,29 +1,40 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
-<!-- 
-============================================
-試堂預約系統 - 更改預約頁面
-============================================
--->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>更改預約 - 香港質心教育</title>
-    <meta name="description" content="香港質心教育 - 更改試堂預約">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        .calendar { background: white; border-radius: 10px; padding: 12px; border: 1px solid #e0e0e0; max-width: 320px; }
+        .calendar-header { text-align: center; font-weight: 600; color: #2c3e50; padding: 8px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .calendar-nav { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 10px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .calendar-day-header { text-align: center; font-size: 12px; color: #7f8c8d; padding: 6px 2px; }
+        .calendar-day { text-align: center; padding: 10px 4px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .calendar-day:hover:not(.empty) { background: #fff3e0; }
+        .calendar-day.selected { background: #f39c12; color: white; font-weight: 600; }
+        .calendar-day.selected-new { background: #27ae60; color: white; font-weight: 600; }
+        .calendar-day.empty { cursor: default; }
+        .time-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 180px; overflow-y: auto; }
+        .time-option { padding: 10px 8px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; transition: all 0.2s; background: white; }
+        .time-option:hover { border-color: #f39c12; }
+        .time-option.selected { border-color: #f39c12; background: #f39c12; color: white; }
+        .time-option.selected-new { border-color: #27ae60; background: #27ae60; color: white; }
+        .recaptcha-container { display: flex; justify-content: center; margin: 20px 0; }
+        .section-old { background: #fff3e0 !important; }
+        .section-new { background: #e8f5e9 !important; }
+        .calendars-row { display: flex; gap: 16px; flex-wrap: wrap; }
+    </style>
 </head>
 <body>
     <div class="container">
-        
-        <!-- 頁面標題區域 -->
         <header class="header" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
-            <div class="logo">
-                <span class="logo-icon">✏️</span>
-            </div>
+            <div class="logo"><span class="logo-icon">✏️</span></div>
             <h1 class="title">香港質心教育</h1>
             <p class="subtitle">更改預約</p>
-            <!-- 導航按鈕 -->
             <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <a href="index.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">📝 新預約</a>
                 <a href="cancel.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">❌ 取消預約</a>
@@ -31,108 +42,41 @@
             </div>
         </header>
 
-        <!-- 提示訊息區域 -->
-        <div id="alert-container"></div>
-
-        <!-- 更改預約表單 -->
         <form id="change-form" class="booking-form">
-            
             <div class="form-section">
-                <h2 class="section-title">
-                    <span class="section-icon">👤</span>
-                    學生資料
-                </h2>
-                
+                <h2 class="section-title"><span class="section-icon">👤</span> 學生資料</h2>
                 <div class="form-group">
-                    <label for="student_name" class="form-label">
-                        學生姓名（中文全稱）<span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="student_name" 
-                        name="student_name" 
-                        class="form-input" 
-                        placeholder="請輸入學生中文全名"
-                        required
-                    >
+                    <label class="form-label">學生姓名（中文全稱）<span class="required">*</span></label>
+                    <input type="text" id="student_name" class="form-input" placeholder="請輸入學生中文全名" required>
                 </div>
             </div>
 
-            <div class="form-section" style="background: #fff3e0;">
-                <h2 class="section-title" style="color: #e65100;">
-                    <span class="section-icon">📅</span>
-                    原有預約
-                </h2>
-                
+            <div class="form-section section-old">
+                <h2 class="section-title" style="color: #e65100;"><span class="section-icon">📅</span> 原有預約</h2>
                 <div class="form-group">
-                    <label for="original_date" class="form-label">
-                        原預約日期 <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="original_date" 
-                        name="original_date" 
-                        class="form-input" 
-                        placeholder="例如：1/15"
-                        required
-                    >
+                    <label class="form-label">原預約日期 <span class="required">*</span></label>
+                    <div class="calendar" id="calendar-old"></div>
                 </div>
-                
                 <div class="form-group">
-                    <label for="original_time" class="form-label">
-                        原預約時間 <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="original_time" 
-                        name="original_time" 
-                        class="form-input" 
-                        placeholder="例如：3pm-4pm"
-                        required
-                    >
+                    <label class="form-label">原預約時間 <span class="required">*</span></label>
+                    <div class="time-selector" id="time-old"></div>
                 </div>
             </div>
 
-            <div class="form-section" style="background: #e8f5e9;">
-                <h2 class="section-title" style="color: #2e7d32;">
-                    <span class="section-icon">🔄</span>
-                    更改為
-                </h2>
-                
+            <div class="form-section section-new">
+                <h2 class="section-title" style="color: #2e7d32;"><span class="section-icon">🔄</span> 更改為</h2>
                 <div class="form-group">
-                    <label for="new_date" class="form-label">
-                        新預約日期 <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="new_date" 
-                        name="new_date" 
-                        class="form-input" 
-                        placeholder="例如：1/20、1/22-1/23"
-                        required
-                    >
-                    <span class="form-hint">只限本月</span>
+                    <label class="form-label">新預約日期 <span class="required">*</span></label>
+                    <div class="calendar" id="calendar-new"></div>
                 </div>
-                
                 <div class="form-group">
-                    <label for="new_time" class="form-label">
-                        新預約時間 <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="new_time" 
-                        name="new_time" 
-                        class="form-input" 
-                        placeholder="例如：4pm-5pm、16:00-17:00"
-                        required
-                    >
-                    <span class="form-hint">可預約時間：10:00-21:00（30分鐘間隔）</span>
+                    <label class="form-label">新預約時間 <span class="required">*</span></label>
+                    <div class="time-selector" id="time-new"></div>
                 </div>
             </div>
 
-            <!-- 提示信息 -->
-            <div style="background: #fff3e0; border-radius: 10px; padding: 16px; margin-bottom: 20px; text-align: center;">
-                <span style="color: #e65100; font-size: 14px;">⚠️ 請提前至少24小時更改預約</span>
+            <div class="recaptcha-container">
+                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
             </div>
 
             <div class="form-actions">
@@ -141,42 +85,116 @@
                     <span class="btn-text">確認更改</span>
                 </button>
             </div>
-
         </form>
 
-        <!-- 補習社資訊 -->
         <div class="contact-info">
             <h3 class="info-title">聯絡我們</h3>
             <div class="info-items">
-                <div class="info-item">
-                    <span class="info-icon">📍</span>
-                    <span class="info-text">九龍太子彌敦道761號太子藍馬之城3樓B室<br>(太子地鐵站C1出口)</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon">📞</span>
-                    <span class="info-text">5765 1008</span>
-                </div>
+                <div class="info-item"><span class="info-icon">📍</span><span class="info-text">九龍太子彌敦道761號太子藍馬之城3樓B室</span></div>
+                <div class="info-item"><span class="info-icon">📞</span><span class="info-text">5765 1008</span></div>
             </div>
         </div>
-
-        <footer class="footer">
-            <p>&copy; 2024 香港質心教育 版權所有</p>
-        </footer>
-
+        <footer class="footer"><p>&copy; 2024 香港質心教育 版權所有</p></footer>
     </div>
 
     <script>
-        document.getElementById('change-form').addEventListener('submit', function(event) {
-            event.preventDefault();
+        const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+        const TIME_SLOTS = [];
+        for (let h = 10; h <= 20; h++) {
+            TIME_SLOTS.push(`${h}:00-${h+1}:00`);
+            if (h < 20) TIME_SLOTS.push(`${h}:30-${h+1}:30`);
+        }
+        TIME_SLOTS.push('20:30-21:00');
+        
+        let oldDate = '', oldTime = '', newDate = '', newTime = '';
+        let oldMonth = new Date().getMonth(), oldYear = new Date().getFullYear();
+        let newMonth = new Date().getMonth(), newYear = new Date().getFullYear();
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCalendar('old');
+            renderCalendar('new');
+            renderTimeSelector('old');
+            renderTimeSelector('new');
+        });
+        
+        function renderCalendar(type) {
+            const container = document.getElementById(`calendar-${type}`);
+            const year = type === 'old' ? oldYear : newYear;
+            const month = type === 'old' ? oldMonth : newMonth;
+            const selected = type === 'old' ? oldDate : newDate;
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            let html = `
+                <div class="calendar-header">
+                    <button type="button" class="calendar-nav" onclick="navMonth('${type}', -1)">‹</button>
+                    <span>${year}年 ${monthNames[month]}</span>
+                    <button type="button" class="calendar-nav" onclick="navMonth('${type}', 1)">›</button>
+                </div>
+                <div class="calendar-grid">
+                    ${WEEKDAYS.map(d => `<div class="calendar-day-header">${d}</div>`).join('')}
+            `;
+            
+            for (let i = 0; i < firstDay.getDay(); i++) html += '<div class="calendar-day empty"></div>';
+            
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dateStr = `${month + 1}/${day}`;
+                const isSelected = selected === dateStr;
+                const cls = isSelected ? (type === 'old' ? ' selected' : ' selected-new') : '';
+                html += `<div class="calendar-day${cls}" onclick="selectDate('${type}', '${dateStr}')">${day}</div>`;
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function navMonth(type, dir) {
+            if (type === 'old') {
+                oldMonth += dir;
+                if (oldMonth < 0) { oldMonth = 11; oldYear--; }
+                if (oldMonth > 11) { oldMonth = 0; oldYear++; }
+            } else {
+                newMonth += dir;
+                if (newMonth < 0) { newMonth = 11; newYear--; }
+                if (newMonth > 11) { newMonth = 0; newYear++; }
+            }
+            renderCalendar(type);
+        }
+        
+        function selectDate(type, dateStr) {
+            if (type === 'old') oldDate = dateStr;
+            else newDate = dateStr;
+            renderCalendar(type);
+        }
+        
+        function renderTimeSelector(type) {
+            const container = document.getElementById(`time-${type}`);
+            container.innerHTML = TIME_SLOTS.map(slot => 
+                `<div class="time-option" onclick="selectTime('${type}', '${slot}', this)">${slot}</div>`
+            ).join('');
+        }
+        
+        function selectTime(type, time, el) {
+            if (type === 'old') oldTime = time;
+            else newTime = time;
+            const container = document.getElementById(`time-${type}`);
+            container.querySelectorAll('.time-option').forEach(e => e.classList.remove('selected', 'selected-new'));
+            el.classList.add(type === 'old' ? 'selected' : 'selected-new');
+        }
+        
+        document.getElementById('change-form').addEventListener('submit', function(e) {
+            e.preventDefault();
             
             const studentName = document.getElementById('student_name').value.trim();
-            const originalDate = document.getElementById('original_date').value.trim();
-            const originalTime = document.getElementById('original_time').value.trim();
-            const newDate = document.getElementById('new_date').value.trim();
-            const newTime = document.getElementById('new_time').value.trim();
-            
-            if (!studentName || !originalDate || !originalTime || !newDate || !newTime) {
+            if (!studentName || !oldDate || !oldTime || !newDate || !newTime) {
                 alert('請填寫所有必填欄位');
+                return;
+            }
+            
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                alert('請完成驗證碼驗證');
                 return;
             }
             
@@ -184,14 +202,13 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">處理中...</span>';
             
-            // 保存到本地存儲
             const formData = {
                 type: 'change',
                 id: 'CH' + Date.now().toString(36).toUpperCase(),
                 timestamp: new Date().toLocaleString('zh-HK'),
                 studentName: studentName,
-                originalDate: originalDate,
-                originalTime: originalTime,
+                originalDate: oldDate,
+                originalTime: oldTime,
                 newDate: newDate,
                 newTime: newTime,
                 status: '待處理'
@@ -201,23 +218,10 @@
             submissions.unshift(formData);
             localStorage.setItem('submissions', JSON.stringify(submissions));
             
-            console.log('========================================');
-            console.log('✏️ 更改預約申請');
-            console.log('========================================');
-            console.log('學生姓名：', studentName);
-            console.log('原預約日期：', originalDate);
-            console.log('原預約時間：', originalTime);
-            console.log('新預約日期：', newDate);
-            console.log('新預約時間：', newTime);
-            console.log('========================================');
-            
             setTimeout(function() {
-                window.location.href = 'confirmation.html?type=change&name=' + encodeURIComponent(studentName) + 
-                    '&olddate=' + encodeURIComponent(originalDate) + '&oldtime=' + encodeURIComponent(originalTime) +
-                    '&date=' + encodeURIComponent(newDate) + '&time=' + encodeURIComponent(newTime);
+                window.location.href = `confirmation.html?type=change&name=${encodeURIComponent(studentName)}&olddate=${encodeURIComponent(oldDate)}&oldtime=${encodeURIComponent(oldTime)}&date=${encodeURIComponent(newDate)}&time=${encodeURIComponent(newTime)}`;
             }, 1000);
         });
     </script>
 </body>
 </html>
-
