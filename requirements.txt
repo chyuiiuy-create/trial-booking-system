@@ -1,0 +1,28 @@
+# ============================================
+# 試堂預約系統 - Python依賴包列表
+# ============================================
+# 說明：這個文件列出了運行系統所需的所有Python包
+# 安裝方法：在命令行中輸入 pip install -r requirements.txt
+# ============================================
+
+# Flask網頁框架 - 用於創建網站
+Flask==2.3.3
+
+# Werkzeug - Flask的核心依賴
+Werkzeug==2.3.7
+
+# python-dotenv - 用於讀取.env環境變量文件
+python-dotenv==1.0.0
+
+# gspread - Google Sheets API的Python庫，用於讀寫Google試算表
+gspread==5.12.0
+
+# google-auth - Google認證庫
+google-auth==2.23.4
+
+# google-auth-oauthlib - Google OAuth認證
+google-auth-oauthlib==1.1.0
+
+# oauth2client - OAuth2客戶端（gspread需要）
+oauth2client==4.1.3
+

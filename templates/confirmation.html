@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<!-- 
+============================================
+試堂預約系統 - 預約確認頁面
+============================================
+說明：這是預約成功後的確認頁面
+顯示預約詳情和後續步驟
+============================================
+-->
+<head>
+    <!-- 網頁編碼設定 -->
+    <meta charset="UTF-8">
+    <!-- 響應式設計，適應手機和電腦螢幕 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 網頁標題 -->
+    <title>預約成功 - {{ center_name }}</title>
+    <!-- 引入自定義CSS樣式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- 引入Google字體（思源黑體） -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ========================================
+         頁面主容器
+    ======================================== -->
+    <div class="container">
+        
+        <!-- ========================================
+             成功圖標和標題
+        ======================================== -->
+        <div class="success-header">
+            <!-- 成功勾號圖標 -->
+            <div class="success-icon">
+                <span>✓</span>
+            </div>
+            <!-- 成功標題 -->
+            <h1 class="success-title">預約成功！</h1>
+            <!-- 成功說明 -->
+            <p class="success-subtitle">感謝您的預約，我們將盡快與您確認</p>
+        </div>
+
+        <!-- ========================================
+             預約詳情卡片
+        ======================================== -->
+        <div class="confirmation-card">
+            <h2 class="card-title">
+                <span class="card-icon">📋</span>
+                預約詳情
+            </h2>
+            
+            <!-- 預約詳情列表 -->
+            <div class="detail-list">
+                <!-- 學生姓名 -->
+                <div class="detail-item">
+                    <span class="detail-label">學生姓名</span>
+                    <span class="detail-value">{{ student_name }}</span>
+                </div>
+                <!-- 年級 -->
+                <div class="detail-item">
+                    <span class="detail-label">年級</span>
+                    <span class="detail-value">{{ grade }}</span>
+                </div>
+                <!-- 預約日期 -->
+                <div class="detail-item">
+                    <span class="detail-label">預約日期</span>
+                    <span class="detail-value">{{ booking_date }}</span>
+                </div>
+                <!-- 預約時段 -->
+                <div class="detail-item">
+                    <span class="detail-label">預約時段</span>
+                    <span class="detail-value highlight">{{ time_slot }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             重要提示區域
+        ======================================== -->
+        <div class="reminder-card">
+            <h3 class="reminder-title">
+                <span class="reminder-icon">⚠️</span>
+                溫馨提示
+            </h3>
+            <ul class="reminder-list">
+                <li>請於預約時間前 <strong>10分鐘</strong> 到達</li>
+                <li>請攜帶學生的 <strong>課本或作業</strong>，方便老師了解學習進度</li>
+                <li>如需更改或取消預約，請提前 <strong>24小時</strong> 通知我們</li>
+                <li>我們的職員將會致電確認您的預約</li>
+            </ul>
+        </div>
+
+        <!-- ========================================
+             補習社地址資訊
+        ======================================== -->
+        <div class="location-card">
+            <h3 class="location-title">
+                <span class="location-icon">📍</span>
+                試堂地點
+            </h3>
+            <div class="location-info">
+                <p class="location-name">{{ center_name }}</p>
+                <p class="location-address">{{ center_address }}</p>
+                <p class="location-phone">
+                    <span>📞</span> {{ center_phone }}
+                </p>
+            </div>
+        </div>
+
+        <!-- ========================================
+             返回按鈕
+        ======================================== -->
+        <div class="action-buttons">
+            <a href="{{ url_for('index') }}" class="back-btn">
+                <span class="btn-icon">←</span>
+                返回首頁
+            </a>
+        </div>
+
+        <!-- ========================================
+             頁面底部
+        ======================================== -->
+        <footer class="footer">
+            <p>&copy; 2024 {{ center_name }} 版權所有</p>
+        </footer>
+
+    </div>
+
+    <!-- ========================================
+         JavaScript - 動畫效果
+    ======================================== -->
+    <script>
+        // 當文檔加載完成後執行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 為成功圖標添加動畫類
+            const successIcon = document.querySelector('.success-icon');
+            setTimeout(function() {
+                successIcon.classList.add('animate');
+            }, 100);
+            
+            // 為卡片添加淡入動畫
+            const cards = document.querySelectorAll('.confirmation-card, .reminder-card, .location-card');
+            cards.forEach(function(card, index) {
+                setTimeout(function() {
+                    card.classList.add('fade-in');
+                }, 200 + (index * 100));
+            });
+        });
+    </script>
+
+</body>
+</html>
+

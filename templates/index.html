@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<!-- 
+============================================
+試堂預約系統 - 預約表單頁面
+============================================
+說明：這是預約表單的主頁面
+家長可以在這裡填寫學生資料和選擇預約時間
+============================================
+-->
+<head>
+    <!-- 網頁編碼設定 -->
+    <meta charset="UTF-8">
+    <!-- 響應式設計，適應手機和電腦螢幕 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 網頁標題 -->
+    <title>試堂預約 - {{ center_name }}</title>
+    <!-- 引入自定義CSS樣式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- 引入Google字體（思源黑體） -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ========================================
+         頁面主容器
+    ======================================== -->
+    <div class="container">
+        
+        <!-- ========================================
+             頁面標題區域
+        ======================================== -->
+        <header class="header">
+            <!-- 補習社標誌/圖標 -->
+            <div class="logo">
+                <span class="logo-icon">📚</span>
+            </div>
+            <!-- 補習社名稱 -->
+            <h1 class="title">{{ center_name }}</h1>
+            <!-- 頁面副標題 -->
+            <p class="subtitle">免費試堂預約</p>
+        </header>
+
+        <!-- ========================================
+             錯誤/提示訊息顯示區域
+        ======================================== -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <!-- 根據訊息類型顯示不同樣式 -->
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- ========================================
+             預約表單
+        ======================================== -->
+        <form class="booking-form" action="{{ url_for('submit_booking') }}" method="POST">
+            
+            <!-- ====================================
+                 學生資料區域
+            ==================================== -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span class="section-icon">👤</span>
+                    學生資料
+                </h2>
+                
+                <!-- 學生姓名輸入框 -->
+                <div class="form-group">
+                    <label for="student_name" class="form-label">
+                        學生姓名 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="student_name" 
+                        name="student_name" 
+                        class="form-input" 
+                        placeholder="請輸入學生全名"
+                        required
+                    >
+                </div>
+                
+                <!-- 年級選擇下拉框 -->
+                <div class="form-group">
+                    <label for="grade" class="form-label">
+                        年級 <span class="required">*</span>
+                    </label>
+                    <select id="grade" name="grade" class="form-select" required>
+                        <option value="" disabled selected>請選擇年級</option>
+                        <!-- 循環顯示所有年級選項 -->
+                        {% for grade in grades %}
+                            <option value="{{ grade }}">{{ grade }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- ====================================
+                 聯絡資料區域
+            ==================================== -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📞</span>
+                    聯絡資料
+                </h2>
+                
+                <!-- 聯絡電話輸入框 -->
+                <div class="form-group">
+                    <label for="phone" class="form-label">
+                        聯絡電話 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        class="form-input" 
+                        placeholder="例如：9123 4567"
+                        pattern="[0-9\s\-]+"
+                        required
+                    >
+                    <span class="form-hint">請輸入香港手提電話號碼</span>
+                </div>
+                
+                <!-- 電郵地址輸入框（非必填） -->
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        電郵地址 <span class="optional">(選填)</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="example@email.com"
+                    >
+                    <span class="form-hint">填寫後可收到預約確認郵件</span>
+                </div>
+            </div>
+
+            <!-- ====================================
+                 預約時間區域
+            ==================================== -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📅</span>
+                    預約時間
+                </h2>
+                
+                <!-- 預約日期選擇 -->
+                <div class="form-group">
+                    <label for="booking_date" class="form-label">
+                        預約日期 <span class="required">*</span>
+                    </label>
+                    <select id="booking_date" name="booking_date" class="form-select" required>
+                        <option value="" disabled selected>請選擇日期</option>
+                        <!-- 循環顯示可預約的日期 -->
+                        {% for date in available_dates %}
+                            <option value="{{ date.date }}">{{ date.full_display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- 預約時段選擇 -->
+                <div class="form-group">
+                    <label for="time_slot" class="form-label">
+                        預約時段 <span class="required">*</span>
+                    </label>
+                    <select id="time_slot" name="time_slot" class="form-select" required>
+                        <option value="" disabled selected>請選擇時段</option>
+                        <!-- 循環顯示所有時段選項 -->
+                        {% for slot in time_slots %}
+                            <option value="{{ slot }}">{{ slot }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- ====================================
+                 提交按鈕
+            ==================================== -->
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                    <span class="btn-icon">✓</span>
+                    確認預約
+                </button>
+            </div>
+
+        </form>
+
+        <!-- ========================================
+             補習社資訊區域
+        ======================================== -->
+        <div class="contact-info">
+            <h3 class="info-title">聯絡我們</h3>
+            <div class="info-items">
+                <!-- 地址 -->
+                <div class="info-item">
+                    <span class="info-icon">📍</span>
+                    <span class="info-text">{{ center_address }}</span>
+                </div>
+                <!-- 電話 -->
+                <div class="info-item">
+                    <span class="info-icon">📞</span>
+                    <span class="info-text">{{ center_phone }}</span>
+                </div>
+                <!-- 電郵 -->
+                <div class="info-item">
+                    <span class="info-icon">✉️</span>
+                    <span class="info-text">{{ center_email }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             頁面底部
+        ======================================== -->
+        <footer class="footer">
+            <p>&copy; 2024 {{ center_name }} 版權所有</p>
+        </footer>
+
+    </div>
+
+    <!-- ========================================
+         JavaScript - 表單驗證
+    ======================================== -->
+    <script>
+        // 當文檔加載完成後執行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取表單元素
+            const form = document.querySelector('.booking-form');
+            
+            // 表單提交前驗證
+            form.addEventListener('submit', function(event) {
+                // 獲取所有必填欄位的值
+                const studentName = document.getElementById('student_name').value.trim();
+                const grade = document.getElementById('grade').value;
+                const phone = document.getElementById('phone').value.trim();
+                const bookingDate = document.getElementById('booking_date').value;
+                const timeSlot = document.getElementById('time_slot').value;
+                
+                // 驗證必填欄位
+                if (!studentName || !grade || !phone || !bookingDate || !timeSlot) {
+                    event.preventDefault();  // 阻止表單提交
+                    alert('請填寫所有必填欄位');
+                    return false;
+                }
+                
+                // 驗證電話號碼格式（香港手機號碼通常是8位數字）
+                const phoneDigits = phone.replace(/[\s\-]/g, '');
+                if (phoneDigits.length < 8) {
+                    event.preventDefault();
+                    alert('請輸入有效的香港電話號碼');
+                    return false;
+                }
+                
+                // 驗證通過，顯示載入提示
+                const submitBtn = form.querySelector('.submit-btn');
+                submitBtn.innerHTML = '<span class="btn-icon">⏳</span> 處理中...';
+                submitBtn.disabled = true;
+                
+                return true;
+            });
+            
+            // 電話號碼自動格式化（每4位加一個空格）
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                // 移除非數字字符
+                let value = e.target.value.replace(/\D/g, '');
+                // 限制最多8位數字
+                value = value.substring(0, 8);
+                // 格式化為 XXXX XXXX
+                if (value.length > 4) {
+                    value = value.substring(0, 4) + ' ' + value.substring(4);
+                }
+                e.target.value = value;
+            });
+        });
+    </script>
+
+</body>
+</html>
+
