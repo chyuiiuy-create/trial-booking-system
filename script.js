@@ -215,6 +215,9 @@ function initializeFormSubmit() {
             status: '待確認'
         };
         
+        // 保存到本地存儲（供管理頁面顯示）
+        saveToLocalStorage(formData);
+        
         // 檢查是否已設置Google Apps Script URL
         if (GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
             // 未設置URL，使用模擬模式
@@ -229,7 +232,7 @@ function initializeFormSubmit() {
             console.log('預約日期：', formData.bookingDate);
             console.log('預約時段：', formData.timeSlot);
             console.log('========================================');
-            console.log('⚠️ 請在script.js中設置GOOGLE_SCRIPT_URL以啟用數據保存');
+            console.log('⚠️ 請在script.js中設置GOOGLE_SCRIPT_URL以啟用數據保存到Google Sheets');
             console.log('========================================');
             
             // 延遲1秒後跳轉到確認頁面（模擬網絡請求）
@@ -297,5 +300,28 @@ function redirectToConfirmation(name, grade, date, time) {
     
     // 跳轉到確認頁面
     window.location.href = 'confirmation.html?' + params.toString();
+}
+
+// ========================================
+// 保存預約數據到本地存儲（供管理頁面查看）
+// ========================================
+function saveToLocalStorage(bookingData) {
+    try {
+        // 獲取現有的預約記錄
+        const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        
+        // 添加新的預約到開頭
+        existingBookings.unshift(bookingData);
+        
+        // 只保留最近的50條記錄
+        const trimmedBookings = existingBookings.slice(0, 50);
+        
+        // 保存到本地存儲
+        localStorage.setItem('bookings', JSON.stringify(trimmedBookings));
+        
+        console.log('✅ 預約數據已保存到本地存儲');
+    } catch (error) {
+        console.error('❌ 保存到本地存儲時發生錯誤：', error);
+    }
 }
 

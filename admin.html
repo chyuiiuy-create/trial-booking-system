@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<!-- 
+============================================
+試堂預約系統 - 管理員頁面
+============================================
+說明：這個頁面用於查看所有預約記錄
+需要先設置好 Google Sheets 才能正常使用
+============================================
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>預約管理 - 香港質心教育</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 管理頁面專用樣式 */
+        .admin-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            text-align: center;
+            padding: 24px;
+        }
+        
+        .admin-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .admin-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .admin-content {
+            padding: 24px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        
+        .bookings-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+        
+        .booking-card {
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #27ae60;
+        }
+        
+        .booking-card.pending {
+            border-left-color: #f39c12;
+        }
+        
+        .booking-card.confirmed {
+            border-left-color: #27ae60;
+        }
+        
+        .booking-card.cancelled {
+            border-left-color: #e74c3c;
+        }
+        
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .booking-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .booking-grade {
+            background: #ecf0f1;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .booking-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .booking-detail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .booking-status {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fef3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .booking-time {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #7f8c8d;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .setup-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .setup-notice h4 {
+            color: #856404;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .setup-notice p {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .setup-notice a {
+            color: #0056b3;
+        }
+        
+        .sheets-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #0f9d58;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .sheets-link:hover {
+            background: #0b8043;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .nav-link:hover {
+            color: white;
+        }
+        
+        @media (max-width: 480px) {
+            .booking-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 頁面標題 -->
+        <header class="admin-header">
+            <h1 class="admin-title">📊 預約管理系統</h1>
+            <p class="admin-subtitle">香港質心教育 - 試堂預約記錄</p>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">← 返回預約頁面</a>
+            </div>
+        </header>
+        
+        <div class="admin-content">
+            <!-- 設置提示 -->
+            <div class="setup-notice" id="setup-notice">
+                <h4>⚠️ 重要提示</h4>
+                <p>預約記錄保存在 Google Sheets 中。請點擊下方按鈕直接查看您的試算表：</p>
+                <a href="#" id="sheets-link" class="sheets-link" target="_blank">
+                    📊 打開 Google Sheets 查看預約記錄
+                </a>
+                <p style="margin-top: 12px; font-size: 13px;">
+                    如果您還沒有設置 Google Sheets，請參考 <a href="https://github.com/chyuiiuy-create/trial-booking-system" target="_blank">README.md</a> 中的說明。
+                </p>
+            </div>
+            
+            <!-- 統計卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="total-bookings">-</span>
+                    <span class="stat-label">總預約數</span>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                    <span class="stat-number" id="pending-bookings">-</span>
+                    <span class="stat-label">待確認</span>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);">
+                    <span class="stat-number" id="confirmed-bookings">-</span>
+                    <span class="stat-label">已確認</span>
+                </div>
+            </div>
+            
+            <!-- 預約列表 -->
+            <div class="bookings-section">
+                <div class="section-header">
+                    <h3 class="section-title">📋 最近預約</h3>
+                    <button class="refresh-btn" onclick="loadBookings()">
+                        🔄 刷新
+                    </button>
+                </div>
+                
+                <div id="bookings-list">
+                    <!-- 空狀態 -->
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>預約記錄保存在 Google Sheets 中</p>
+                        <p style="font-size: 14px; margin-top: 8px;">請點擊上方的「打開 Google Sheets」按鈕查看</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>&copy; 2024 香港質心教育 版權所有</p>
+        </footer>
+    </div>
+    
+    <script>
+        // ========================================
+        // 管理頁面腳本
+        // ========================================
+        
+        // Google Sheets URL - 請替換為您的試算表網址
+        // 格式：https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit
+        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設置 Google Sheets 連結
+            const sheetsLink = document.getElementById('sheets-link');
+            
+            if (GOOGLE_SHEETS_URL.includes('YOUR_SPREADSHEET_ID')) {
+                // 如果還沒設置，顯示創建新試算表的連結
+                sheetsLink.href = 'https://sheets.google.com/';
+                sheetsLink.textContent = '📊 打開 Google Sheets（創建新試算表）';
+            } else {
+                sheetsLink.href = GOOGLE_SHEETS_URL;
+            }
+            
+            // 顯示本地存儲的預約數據（如果有）
+            loadLocalBookings();
+        });
+        
+        // 載入本地存儲的預約數據
+        function loadLocalBookings() {
+            try {
+                const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+                
+                // 更新統計
+                document.getElementById('total-bookings').textContent = bookings.length;
+                document.getElementById('pending-bookings').textContent = 
+                    bookings.filter(b => b.status === '待確認').length;
+                document.getElementById('confirmed-bookings').textContent = 
+                    bookings.filter(b => b.status === '已確認').length;
+                
+                // 如果有本地數據，顯示它們
+                if (bookings.length > 0) {
+                    displayBookings(bookings);
+                }
+            } catch (e) {
+                console.log('無本地預約數據');
+            }
+        }
+        
+        // 顯示預約列表
+        function displayBookings(bookings) {
+            const container = document.getElementById('bookings-list');
+            
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>暫無預約記錄</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = bookings.map(booking => `
+                <div class="booking-card ${booking.status === '待確認' ? 'pending' : 'confirmed'}">
+                    <div class="booking-header">
+                        <span class="booking-name">${booking.studentName || booking.name || '-'}</span>
+                        <span class="booking-grade">${booking.grade || '-'}</span>
+                    </div>
+                    <div class="booking-details">
+                        <div class="booking-detail">
+                            📅 ${booking.bookingDate || booking.date || '-'}
+                        </div>
+                        <div class="booking-detail">
+                            ⏰ ${booking.timeSlot || booking.time || '-'}
+                        </div>
+                        <div class="booking-detail">
+                            📞 ${booking.phone || '-'}
+                        </div>
+                        <div class="booking-detail">
+                            ✉️ ${booking.email || '未提供'}
+                        </div>
+                    </div>
+                    <div class="booking-status">
+                        <span class="status-badge ${booking.status === '待確認' ? 'status-pending' : 'status-confirmed'}">
+                            ${booking.status || '待確認'}
+                        </span>
+                        <span class="booking-time">${booking.timestamp || ''}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 刷新按鈕
+        function loadBookings() {
+            const btn = document.querySelector('.refresh-btn');
+            btn.innerHTML = '⏳ 載入中...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                loadLocalBookings();
+                btn.innerHTML = '🔄 刷新';
+                btn.disabled = false;
+                
+                // 提示用戶查看 Google Sheets
+                alert('預約數據保存在 Google Sheets 中。\n請點擊「打開 Google Sheets」按鈕查看完整記錄。');
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+
