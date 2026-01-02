@@ -237,6 +237,17 @@
                     如有問題，請致電：5765 1008
                 </p>
             </div>
+            
+            <!-- 過期狀態 -->
+            <div class="error-state" id="expired-state">
+                <div class="error-icon">⌛</div>
+                <h1 class="error-title" style="color: #95a5a6;">預約已過期</h1>
+                <p class="error-message">
+                    很抱歉，此預約已超過確認期限。<br>
+                    請重新預約或致電我們安排。
+                </p>
+                <a href="index.html" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">重新預約</a>
+            </div>
         </div>
     </div>
     
@@ -252,6 +263,38 @@
         const confirmedTime = urlParams.get('time');
         const subject = urlParams.get('subject');
         
+        // 檢查預約是否過期
+        function isExpired(dateStr) {
+            if (!dateStr) return false;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // 嘗試解析 "X月Y日" 格式
+            const cnMatch = dateStr.match(/(\d{1,2})月(\d{1,2})日/);
+            if (cnMatch) {
+                const month = parseInt(cnMatch[1]) - 1;
+                const day = parseInt(cnMatch[2]);
+                let bookingDate = new Date(today.getFullYear(), month, day);
+                if (bookingDate < today && month < today.getMonth()) {
+                    bookingDate.setFullYear(today.getFullYear() + 1);
+                }
+                return bookingDate < today;
+            }
+            
+            // 嘗試解析 "M/D" 格式
+            const slashMatch = dateStr.match(/(\d{4}\/)?(\d{1,2})\/(\d{1,2})/);
+            if (slashMatch) {
+                const year = slashMatch[1] ? parseInt(slashMatch[1]) : today.getFullYear();
+                const month = parseInt(slashMatch[2]) - 1;
+                const day = parseInt(slashMatch[3]);
+                const bookingDate = new Date(year, month, day);
+                return bookingDate < today;
+            }
+            
+            return false;
+        }
+        
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             if (!bookingId || !studentName) {
@@ -259,9 +302,16 @@
                 return;
             }
             
+            // 檢查是否過期
+            const dateStr = decodeURIComponent(confirmedDate || '');
+            if (isExpired(dateStr)) {
+                showExpired();
+                return;
+            }
+            
             // 顯示預約詳情
             document.getElementById('detail-name').textContent = decodeURIComponent(studentName);
-            document.getElementById('detail-date').textContent = decodeURIComponent(confirmedDate || '-');
+            document.getElementById('detail-date').textContent = dateStr || '-';
             document.getElementById('detail-time').textContent = decodeURIComponent(confirmedTime || '-');
             document.getElementById('detail-subject').textContent = decodeURIComponent(subject || '-');
             
@@ -307,6 +357,11 @@
         function showError() {
             document.getElementById('pending-state').classList.add('hidden');
             document.getElementById('error-state').classList.add('active');
+        }
+        
+        function showExpired() {
+            document.getElementById('pending-state').classList.add('hidden');
+            document.getElementById('expired-state').classList.add('active');
         }
     </script>
 </body>

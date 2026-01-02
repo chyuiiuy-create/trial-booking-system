@@ -419,6 +419,10 @@
                         <span class="stat-number" id="confirmed-count">0</span>
                         <span class="stat-label">已確認</span>
                     </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #95a5a6, #7f8c8d);">
+                        <span class="stat-number" id="expired-count">0</span>
+                        <span class="stat-label">已過期</span>
+                    </div>
                 </div>
                 
                 <!-- 提交列表 -->
@@ -543,7 +547,62 @@
             renderSubmissions();
         }
         
+        // 檢查預約是否已過期
+        function checkExpired(sub) {
+            // 只檢查「待客戶確認」狀態的預約
+            if (sub.status !== '待客戶確認') return false;
+            
+            // 獲取確認日期
+            const dateStr = sub.confirmedDate || sub.preferredDate || '';
+            if (!dateStr) return false;
+            
+            // 嘗試解析日期（支援多種格式）
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // 嘗試從日期字符串中提取日期
+            // 支援格式：1月15日、1/15、2024/1/15、2024-01-15 等
+            let bookingDate = null;
+            
+            // 嘗試解析 "X月Y日" 格式
+            const cnMatch = dateStr.match(/(\d{1,2})月(\d{1,2})日/);
+            if (cnMatch) {
+                const month = parseInt(cnMatch[1]) - 1;
+                const day = parseInt(cnMatch[2]);
+                bookingDate = new Date(today.getFullYear(), month, day);
+                // 如果日期已過但月份比今天小，可能是明年
+                if (bookingDate < today && month < today.getMonth()) {
+                    bookingDate.setFullYear(today.getFullYear() + 1);
+                }
+            }
+            
+            // 嘗試解析 "M/D" 或 "YYYY/M/D" 格式
+            if (!bookingDate) {
+                const slashMatch = dateStr.match(/(\d{4}\/)?(\d{1,2})\/(\d{1,2})/);
+                if (slashMatch) {
+                    const year = slashMatch[1] ? parseInt(slashMatch[1]) : today.getFullYear();
+                    const month = parseInt(slashMatch[2]) - 1;
+                    const day = parseInt(slashMatch[3]);
+                    bookingDate = new Date(year, month, day);
+                }
+            }
+            
+            // 如果成功解析日期，檢查是否過期
+            if (bookingDate) {
+                return bookingDate < today;
+            }
+            
+            return false;
+        }
+        
         function updateStats() {
+            // 先檢查並更新過期狀態
+            allSubmissions.forEach(sub => {
+                if (checkExpired(sub)) {
+                    sub.status = '已過期';
+                }
+            });
+            
             const total = allSubmissions.length;
             const bookings = allSubmissions.filter(s => s.type === 'booking').length;
             const cancels = allSubmissions.filter(s => s.type === 'cancel').length;
@@ -551,6 +610,7 @@
             const pending = allSubmissions.filter(s => s.status === '待處理').length;
             const waiting = allSubmissions.filter(s => s.status === '待客戶確認').length;
             const confirmed = allSubmissions.filter(s => s.status === '已確認').length;
+            const expired = allSubmissions.filter(s => s.status === '已過期').length;
             
             document.getElementById('total-count').textContent = total;
             document.getElementById('booking-count').textContent = bookings;
@@ -559,6 +619,7 @@
             document.getElementById('pending-count').textContent = pending;
             document.getElementById('waiting-count').textContent = waiting;
             document.getElementById('confirmed-count').textContent = confirmed;
+            document.getElementById('expired-count').textContent = expired;
         }
         
         function filterSubmissions(filter) {
@@ -612,6 +673,8 @@
                                 <span style="font-size: 11px; color: #f39c12; font-weight: 600;">⏳ 待客戶確認</span>
                             ` : sub.status === '已確認' ? `
                                 <span style="font-size: 11px; color: #27ae60; font-weight: 600;">✅ 已確認</span>
+                            ` : sub.status === '已過期' ? `
+                                <span style="font-size: 11px; color: #95a5a6; font-weight: 600;">⌛ 已過期</span>
                             ` : `
                                 <span style="font-size: 11px; color: #e74c3c; font-weight: 600;">❌ ${sub.status}</span>
                             `}
@@ -708,7 +771,8 @@
                     <span class="detail-value" style="color: ${
                         sub.status === '已確認' ? '#27ae60' : 
                         sub.status === '待客戶確認' ? '#f39c12' : 
-                        sub.status === '已拒絕' ? '#e74c3c' : '#3498db'
+                        sub.status === '已拒絕' ? '#e74c3c' : 
+                        sub.status === '已過期' ? '#95a5a6' : '#3498db'
                     }; font-weight: 600;">${sub.status || '待處理'}</span>
                 </div>
             `;

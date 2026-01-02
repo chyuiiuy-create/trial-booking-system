@@ -278,9 +278,10 @@
                 
                 <div class="form-group">
                     <label for="email" class="form-label">
-                        電郵地址 <span class="optional">(選填)</span>
+                        電郵地址 <span class="required">*</span>
+                        <span style="font-size: 11px; color: #666; font-weight: normal;">（用於接收確認通知）</span>
                     </label>
-                    <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com">
+                    <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
                 </div>
             </div>
 
@@ -598,9 +599,17 @@
                 const grade = document.getElementById('grade').value;
                 const subject = document.getElementById('subject').value;
                 const phone = document.getElementById('phone').value.trim();
+                const email = document.getElementById('email').value.trim();
                 
-                if (!studentName || !grade || !subject || !phone) {
-                    alert('請填寫所有必填欄位');
+                if (!studentName || !grade || !subject || !phone || !email) {
+                    alert('請填寫所有必填欄位（包括電郵地址）');
+                    return;
+                }
+                
+                // 驗證電郵格式
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('請輸入有效的電郵地址');
                     return;
                 }
                 
