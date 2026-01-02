@@ -20,6 +20,43 @@
             object-fit: contain;
         }
         
+        /* 單選按鈕組樣式 */
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+            accent-color: #667eea;
+        }
+        .radio-option input[type="radio"]:checked + .radio-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .radio-option:has(input:checked) {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .radio-label {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
         /* 日曆樣式 */
         .calendar-container {
             display: flex;
@@ -284,6 +321,47 @@
                     </label>
                     <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
                 </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        如何得知我們？ <span class="required">*</span>
+                    </label>
+                    <div class="radio-group" id="source-group">
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="小紅書" required>
+                            <span class="radio-label">小紅書</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="微信公眾號">
+                            <span class="radio-label">微信公眾號</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="抖音">
+                            <span class="radio-label">抖音</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="Facebook">
+                            <span class="radio-label">Facebook</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="Instagram">
+                            <span class="radio-label">Instagram</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="Whatsapp">
+                            <span class="radio-label">Whatsapp</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="轉介">
+                            <span class="radio-label">轉介</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="source" value="其他" id="source-other-radio">
+                            <span class="radio-label">其他</span>
+                        </label>
+                    </div>
+                    <input type="text" id="source-other-text" class="form-input" placeholder="請列明..." style="display: none; margin-top: 10px;">
+                </div>
             </div>
 
             <!-- 預約時間 -->
@@ -391,7 +469,27 @@
             renderTimeSelector();
             initPhoneFormatter();
             initFormSubmit();
+            initSourceOther();
         });
+        
+        // 處理「其他」選項
+        function initSourceOther() {
+            const otherRadio = document.getElementById('source-other-radio');
+            const otherText = document.getElementById('source-other-text');
+            const allRadios = document.querySelectorAll('input[name="source"]');
+            
+            allRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (otherRadio.checked) {
+                        otherText.style.display = 'block';
+                        otherText.focus();
+                    } else {
+                        otherText.style.display = 'none';
+                        otherText.value = '';
+                    }
+                });
+            });
+        }
         
         // 渲染日曆
         function renderCalendars() {
@@ -595,8 +693,24 @@
                 const phone = document.getElementById('phone').value.trim();
                 const email = document.getElementById('email').value.trim();
                 
+                // 獲取來源
+                const sourceRadio = document.querySelector('input[name="source"]:checked');
+                let source = '';
+                if (sourceRadio) {
+                    source = sourceRadio.value;
+                    if (source === '其他') {
+                        const otherText = document.getElementById('source-other-text').value.trim();
+                        source = otherText ? '其他：' + otherText : '其他';
+                    }
+                }
+                
                 if (!studentName || !grade || !subject || !phone || !email) {
                     alert('請填寫所有必填欄位（包括電郵地址）');
+                    return;
+                }
+                
+                if (!sourceRadio) {
+                    alert('請選擇「如何得知我們」');
                     return;
                 }
                 
@@ -627,7 +741,8 @@
                     grade: grade,
                     subject: subject,
                     phone: phone,
-                    email: document.getElementById('email').value.trim() || '未提供',
+                    email: email,
+                    source: source,
                     preferredDate: selectedList.join('; '),
                     preferredTime: '',
                     status: '待處理'

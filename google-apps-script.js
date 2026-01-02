@@ -82,6 +82,7 @@ function saveNewBooking(data) {
       '科目',
       '聯絡電話',
       '電郵地址',
+      '來源',
       '希望日期',
       '希望時段',
       '確認日期',
@@ -91,7 +92,7 @@ function saveNewBooking(data) {
     ]);
     
     // 設置表頭樣式
-    var headerRange = sheet.getRange('A1:M1');
+    var headerRange = sheet.getRange('A1:N1');
     headerRange.setFontWeight('bold');
     headerRange.setBackground('#4a86e8');
     headerRange.setFontColor('#ffffff');
@@ -106,6 +107,7 @@ function saveNewBooking(data) {
     data.subject || '',         // 科目
     data.phone || '',           // 聯絡電話
     data.email || '',           // 電郵地址
+    data.source || '',          // 來源
     data.preferredDate || '',   // 希望日期
     data.preferredTime || '',   // 希望時段
     '',                         // 確認日期（待填）
@@ -179,9 +181,9 @@ function confirmBooking(data) {
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === data.bookingId) {
       // 更新確認日期、確認時段和狀態
-      sheet.getRange(i + 1, 10).setValue(data.confirmedDate);  // J列：確認日期
-      sheet.getRange(i + 1, 11).setValue(data.confirmedTime);  // K列：確認時段
-      sheet.getRange(i + 1, 12).setValue('待客戶確認');          // L列：狀態（等待家長確認）
+      sheet.getRange(i + 1, 11).setValue(data.confirmedDate);  // K列：確認日期
+      sheet.getRange(i + 1, 12).setValue(data.confirmedTime);  // L列：確認時段
+      sheet.getRange(i + 1, 13).setValue('待客戶確認');          // M列：狀態（等待家長確認）
       
       // 發送確認郵件
       if (values[i][6] && values[i][6] !== '未提供') {
@@ -223,8 +225,8 @@ function declineBooking(data) {
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === data.bookingId) {
       // 更新狀態和備註
-      sheet.getRange(i + 1, 12).setValue('已拒絕');          // L列：狀態
-      sheet.getRange(i + 1, 13).setValue(data.reason || ''); // M列：備註
+      sheet.getRange(i + 1, 13).setValue('已拒絕');          // M列：狀態
+      sheet.getRange(i + 1, 14).setValue(data.reason || ''); // N列：備註
       
       // 發送拒絕郵件
       if (values[i][6] && values[i][6] !== '未提供') {
@@ -291,16 +293,16 @@ function updateBookingStatus(data) {
     if (values[i][0] === originalId) {
       if (data.type === 'cancel') {
         // 更新狀態為「已取消」
-        sheet.getRange(i + 1, 12).setValue('已取消');  // L列：狀態
-        sheet.getRange(i + 1, 13).setValue('客戶取消 - ' + (data.reason || '無原因') + ' (' + data.timestamp + ')');
+        sheet.getRange(i + 1, 13).setValue('已取消');  // M列：狀態
+        sheet.getRange(i + 1, 14).setValue('客戶取消 - ' + (data.reason || '無原因') + ' (' + data.timestamp + ')');
         
         // 發送通知給管理員
-        sendAdminCancelNotification(studentName, values[i][9], values[i][10], data.reason);
+        sendAdminCancelNotification(studentName, values[i][10], values[i][11], data.reason);
         
       } else if (data.type === 'change') {
         // 更新狀態為「更改中」
-        sheet.getRange(i + 1, 12).setValue('更改中');  // L列：狀態
-        sheet.getRange(i + 1, 13).setValue('客戶申請更改 - 新時段：' + data.newPreferredDate + ' (' + data.timestamp + ')');
+        sheet.getRange(i + 1, 13).setValue('更改中');  // M列：狀態
+        sheet.getRange(i + 1, 14).setValue('客戶申請更改 - 新時段：' + data.newPreferredDate + ' (' + data.timestamp + ')');
         
         // 添加新的預約記錄
         sheet.appendRow([
@@ -320,7 +322,7 @@ function updateBookingStatus(data) {
         ]);
         
         // 發送通知給管理員
-        sendAdminChangeNotification(studentName, values[i][9], values[i][10], data.newPreferredDate);
+        sendAdminChangeNotification(studentName, values[i][10], values[i][11], data.newPreferredDate);
       }
       break;
     }
@@ -399,11 +401,11 @@ function clientConfirmBooking(data) {
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === data.bookingId) {
       // 更新狀態為「已確認」
-      sheet.getRange(i + 1, 12).setValue('已確認');  // L列：狀態
-      sheet.getRange(i + 1, 13).setValue('客戶已確認 - ' + new Date().toLocaleString('zh-HK')); // M列：備註
+      sheet.getRange(i + 1, 13).setValue('已確認');  // M列：狀態
+      sheet.getRange(i + 1, 14).setValue('客戶已確認 - ' + new Date().toLocaleString('zh-HK')); // N列：備註
       
       // 發送通知給管理員
-      sendAdminClientConfirmNotification(values[i][2], values[i][9], values[i][10]);
+      sendAdminClientConfirmNotification(values[i][2], values[i][10], values[i][11]);
       
       break;
     }
@@ -580,12 +582,13 @@ function getAllBookings() {
       subject: row[4] || '',
       phone: row[5] || '',
       email: row[6] || '',
-      preferredDate: row[7] || '',
-      preferredTime: row[8] || '',
-      confirmedDate: row[9] || '',
-      confirmedTime: row[10] || '',
-      status: row[11] || '待處理',
-      notes: row[12] || '',
+      source: row[7] || '',
+      preferredDate: row[8] || '',
+      preferredTime: row[9] || '',
+      confirmedDate: row[10] || '',
+      confirmedTime: row[11] || '',
+      status: row[12] || '待處理',
+      notes: row[13] || '',
       type: 'booking' // 默認類型
     };
     
