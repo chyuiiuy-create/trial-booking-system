@@ -2,107 +2,60 @@
 <html lang="zh-HK">
 <!-- 
 ============================================
-試堂預約系統 - 預約確認頁面
+試堂預約系統 - 確認頁面
 ============================================
-說明：這是預約成功後的確認頁面
-顯示預約詳情和後續步驟
-部署平台：Cloudflare Pages
+說明：顯示預約/取消/更改的確認信息
 ============================================
 -->
 <head>
-    <!-- 網頁編碼設定 -->
     <meta charset="UTF-8">
-    <!-- 響應式設計，適應手機和電腦螢幕 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 網頁標題 -->
-    <title>預約成功 - 香港質心教育</title>
-    <!-- 引入自定義CSS樣式 -->
+    <title>提交成功 - 香港質心教育</title>
     <link rel="stylesheet" href="style.css">
-    <!-- 引入Google字體（思源黑體） -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- ========================================
-         頁面主容器
-    ======================================== -->
     <div class="container">
         
-        <!-- ========================================
-             成功圖標和標題
-        ======================================== -->
-        <div class="success-header">
-            <!-- 成功勾號圖標 -->
+        <!-- 成功圖標和標題 -->
+        <div class="success-header" id="success-header">
             <div class="success-icon" id="success-icon">
-                <span>✓</span>
+                <span id="icon-text">✓</span>
             </div>
-            <!-- 成功標題 -->
-            <h1 class="success-title">已收到您的預約申請！</h1>
-            <!-- 成功說明 -->
-            <p class="success-subtitle">我們會盡快致電確認具體時間，請留意來電</p>
+            <h1 class="success-title" id="success-title">已收到您的申請！</h1>
+            <p class="success-subtitle" id="success-subtitle">我們會盡快處理並通知您</p>
         </div>
 
-        <!-- ========================================
-             預約詳情卡片
-        ======================================== -->
+        <!-- 詳情卡片 -->
         <div class="confirmation-card" id="confirmation-card">
             <h2 class="card-title">
                 <span class="card-icon">📋</span>
-                預約詳情
+                <span id="card-title-text">申請詳情</span>
             </h2>
             
-            <!-- 預約詳情列表 -->
-            <div class="detail-list">
-                <!-- 學生姓名 -->
-                <div class="detail-item">
-                    <span class="detail-label">學生姓名</span>
-                    <span class="detail-value" id="confirm-name">-</span>
-                </div>
-                <!-- 年級 -->
-                <div class="detail-item">
-                    <span class="detail-label">年級</span>
-                    <span class="detail-value" id="confirm-grade">-</span>
-                </div>
-                <!-- 科目 -->
-                <div class="detail-item">
-                    <span class="detail-label">科目</span>
-                    <span class="detail-value" id="confirm-subject">-</span>
-                </div>
-                <!-- 希望預約日期 -->
-                <div class="detail-item">
-                    <span class="detail-label">希望日期</span>
-                    <span class="detail-value" id="confirm-date">-</span>
-                </div>
-                <!-- 希望預約時段 -->
-                <div class="detail-item">
-                    <span class="detail-label">希望時段</span>
-                    <span class="detail-value highlight" id="confirm-time">-</span>
-                </div>
+            <div class="detail-list" id="detail-list">
+                <!-- 由JavaScript動態生成 -->
             </div>
         </div>
 
-        <!-- ========================================
-             重要提示區域
-        ======================================== -->
+        <!-- 重要提示 -->
         <div class="reminder-card" id="reminder-card">
             <h3 class="reminder-title">
-                <span class="reminder-icon">⚠️</span>
+                <span class="reminder-icon">💡</span>
                 溫馨提示
             </h3>
-            <ul class="reminder-list">
-                <li>請於預約時間前 <strong>10分鐘</strong> 到達</li>
-                <li>請攜帶學生的 <strong>課本或作業</strong>，方便老師了解學習進度</li>
-                <li>如需更改或取消預約，請提前 <strong>24小時</strong> 通知我們</li>
-                <li>我們的職員將會致電確認您的預約</li>
+            <ul class="reminder-list" id="reminder-list">
+                <li>我們會盡快處理您的申請</li>
+                <li>處理完成後會發送通知給您</li>
+                <li>如有疑問，請致電 <strong>5765 1008</strong></li>
             </ul>
         </div>
 
-        <!-- ========================================
-             補習社地址資訊
-        ======================================== -->
+        <!-- 地點資訊 -->
         <div class="location-card" id="location-card">
             <h3 class="location-title">
                 <span class="location-icon">📍</span>
-                試堂地點
+                地點
             </h3>
             <div class="location-info">
                 <p class="location-name">香港質心教育</p>
@@ -113,9 +66,7 @@
             </div>
         </div>
 
-        <!-- ========================================
-             返回按鈕
-        ======================================== -->
+        <!-- 返回按鈕 -->
         <div class="action-buttons">
             <a href="index.html" class="back-btn">
                 <span class="btn-icon">←</span>
@@ -123,45 +74,116 @@
             </a>
         </div>
 
-        <!-- ========================================
-             頁面底部
-        ======================================== -->
         <footer class="footer">
             <p>&copy; 2024 香港質心教育 版權所有</p>
         </footer>
 
     </div>
 
-    <!-- JavaScript - 動畫效果和數據顯示 -->
     <script>
-        // ========================================
-        // 當頁面加載完成後執行
-        // ========================================
         document.addEventListener('DOMContentLoaded', function() {
-            // 從URL參數獲取預約數據
             const urlParams = new URLSearchParams(window.location.search);
-            
-            // 獲取各個參數值
+            const type = urlParams.get('type') || 'booking';
             const studentName = urlParams.get('name') || '-';
-            const grade = urlParams.get('grade') || '-';
-            const subject = urlParams.get('subject') || '-';
-            const bookingDate = urlParams.get('date') || '-';
-            const timeSlot = urlParams.get('time') || '-';
             
-            // 顯示預約詳情
-            document.getElementById('confirm-name').textContent = studentName;
-            document.getElementById('confirm-grade').textContent = grade;
-            document.getElementById('confirm-subject').textContent = subject;
-            document.getElementById('confirm-date').textContent = bookingDate;
-            document.getElementById('confirm-time').textContent = timeSlot;
+            const successHeader = document.getElementById('success-header');
+            const iconText = document.getElementById('icon-text');
+            const successTitle = document.getElementById('success-title');
+            const successSubtitle = document.getElementById('success-subtitle');
+            const cardTitleText = document.getElementById('card-title-text');
+            const detailList = document.getElementById('detail-list');
             
-            // 添加動畫效果
-            // 成功圖標動畫
+            // 根據類型設置不同的樣式和內容
+            if (type === 'cancel') {
+                // 取消預約
+                successHeader.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+                iconText.textContent = '✗';
+                successTitle.textContent = '取消申請已收到！';
+                successSubtitle.textContent = '我們會盡快處理您的取消申請';
+                cardTitleText.textContent = '取消詳情';
+                
+                detailList.innerHTML = `
+                    <div class="detail-item">
+                        <span class="detail-label">學生姓名</span>
+                        <span class="detail-value">${studentName}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">取消日期</span>
+                        <span class="detail-value">${urlParams.get('date') || '-'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">取消時間</span>
+                        <span class="detail-value highlight" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">${urlParams.get('time') || '-'}</span>
+                    </div>
+                `;
+                
+            } else if (type === 'change') {
+                // 更改預約
+                successHeader.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
+                iconText.textContent = '✏️';
+                successTitle.textContent = '更改申請已收到！';
+                successSubtitle.textContent = '我們會盡快處理您的更改申請';
+                cardTitleText.textContent = '更改詳情';
+                
+                detailList.innerHTML = `
+                    <div class="detail-item">
+                        <span class="detail-label">學生姓名</span>
+                        <span class="detail-value">${studentName}</span>
+                    </div>
+                    <div class="detail-item" style="background: #fff3e0;">
+                        <span class="detail-label">原日期</span>
+                        <span class="detail-value" style="text-decoration: line-through; color: #999;">${urlParams.get('olddate') || '-'}</span>
+                    </div>
+                    <div class="detail-item" style="background: #fff3e0;">
+                        <span class="detail-label">原時間</span>
+                        <span class="detail-value" style="text-decoration: line-through; color: #999;">${urlParams.get('oldtime') || '-'}</span>
+                    </div>
+                    <div class="detail-item" style="background: #e8f5e9;">
+                        <span class="detail-label">新日期</span>
+                        <span class="detail-value" style="color: #2e7d32; font-weight: 600;">${urlParams.get('date') || '-'}</span>
+                    </div>
+                    <div class="detail-item" style="background: #e8f5e9;">
+                        <span class="detail-label">新時間</span>
+                        <span class="detail-value highlight" style="background: rgba(46, 125, 50, 0.1); color: #2e7d32;">${urlParams.get('time') || '-'}</span>
+                    </div>
+                `;
+                
+            } else {
+                // 新預約
+                const grade = urlParams.get('grade') || '-';
+                const subject = urlParams.get('subject') || '-';
+                const date = urlParams.get('date') || '-';
+                const time = urlParams.get('time') || '-';
+                
+                detailList.innerHTML = `
+                    <div class="detail-item">
+                        <span class="detail-label">學生姓名</span>
+                        <span class="detail-value">${studentName}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">年級</span>
+                        <span class="detail-value">${grade}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">科目</span>
+                        <span class="detail-value">${subject}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">預約日期</span>
+                        <span class="detail-value">${date}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">預約時間</span>
+                        <span class="detail-value highlight">${time}</span>
+                    </div>
+                `;
+            }
+            
+            // 動畫效果
             setTimeout(function() {
                 document.getElementById('success-icon').classList.add('animate');
             }, 100);
             
-            // 卡片淡入動畫
             const cards = ['confirmation-card', 'reminder-card', 'location-card'];
             cards.forEach(function(cardId, index) {
                 setTimeout(function() {
@@ -172,4 +194,3 @@
     </script>
 </body>
 </html>
-

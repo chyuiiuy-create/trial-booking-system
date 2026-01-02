@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<!-- 
+============================================
+試堂預約系統 - 取消預約頁面
+============================================
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>取消預約 - 香港質心教育</title>
+    <meta name="description" content="香港質心教育 - 取消試堂預約">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        
+        <!-- 頁面標題區域 -->
+        <header class="header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+            <div class="logo">
+                <span class="logo-icon">❌</span>
+            </div>
+            <h1 class="title">香港質心教育</h1>
+            <p class="subtitle">取消預約</p>
+            <!-- 導航按鈕 -->
+            <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <a href="index.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">📝 新預約</a>
+                <a href="cancel.html" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">❌ 取消預約</a>
+                <a href="change.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">✏️ 更改預約</a>
+            </div>
+        </header>
+
+        <!-- 提示訊息區域 -->
+        <div id="alert-container"></div>
+
+        <!-- 取消預約表單 -->
+        <form id="cancel-form" class="booking-form">
+            
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span class="section-icon">👤</span>
+                    學生資料
+                </h2>
+                
+                <div class="form-group">
+                    <label for="student_name" class="form-label">
+                        學生姓名（中文全稱）<span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="student_name" 
+                        name="student_name" 
+                        class="form-input" 
+                        placeholder="請輸入學生中文全名"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span class="section-icon">📅</span>
+                    需取消的預約
+                </h2>
+                
+                <div class="form-group">
+                    <label for="cancel_date" class="form-label">
+                        取消預約日期 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="cancel_date" 
+                        name="cancel_date" 
+                        class="form-input" 
+                        placeholder="例如：1/15、1/23"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="cancel_time" class="form-label">
+                        取消預約時間 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="cancel_time" 
+                        name="cancel_time" 
+                        class="form-input" 
+                        placeholder="例如：3pm-4pm、15:30-16:30"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="cancel_reason" class="form-label">
+                        取消原因 <span class="optional">(選填)</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="cancel_reason" 
+                        name="cancel_reason" 
+                        class="form-input" 
+                        placeholder="例如：時間衝突、臨時有事"
+                    >
+                </div>
+            </div>
+
+            <!-- 提示信息 -->
+            <div style="background: #ffebee; border-radius: 10px; padding: 16px; margin-bottom: 20px; text-align: center;">
+                <span style="color: #c62828; font-size: 14px;">⚠️ 請提前至少24小時取消預約</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" id="submit-btn" class="submit-btn" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                    <span class="btn-icon">✗</span>
+                    <span class="btn-text">確認取消</span>
+                </button>
+            </div>
+
+        </form>
+
+        <!-- 補習社資訊 -->
+        <div class="contact-info">
+            <h3 class="info-title">聯絡我們</h3>
+            <div class="info-items">
+                <div class="info-item">
+                    <span class="info-icon">📍</span>
+                    <span class="info-text">九龍太子彌敦道761號太子藍馬之城3樓B室<br>(太子地鐵站C1出口)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">📞</span>
+                    <span class="info-text">5765 1008</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2024 香港質心教育 版權所有</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.getElementById('cancel-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const studentName = document.getElementById('student_name').value.trim();
+            const cancelDate = document.getElementById('cancel_date').value.trim();
+            const cancelTime = document.getElementById('cancel_time').value.trim();
+            const cancelReason = document.getElementById('cancel_reason').value.trim();
+            
+            if (!studentName || !cancelDate || !cancelTime) {
+                alert('請填寫所有必填欄位');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">處理中...</span>';
+            
+            // 保存到本地存儲
+            const formData = {
+                type: 'cancel',
+                id: 'CN' + Date.now().toString(36).toUpperCase(),
+                timestamp: new Date().toLocaleString('zh-HK'),
+                studentName: studentName,
+                cancelDate: cancelDate,
+                cancelTime: cancelTime,
+                reason: cancelReason || '未說明',
+                status: '待處理'
+            };
+            
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            submissions.unshift(formData);
+            localStorage.setItem('submissions', JSON.stringify(submissions));
+            
+            console.log('========================================');
+            console.log('❌ 取消預約申請');
+            console.log('========================================');
+            console.log('學生姓名：', studentName);
+            console.log('取消日期：', cancelDate);
+            console.log('取消時間：', cancelTime);
+            console.log('取消原因：', cancelReason || '未說明');
+            console.log('========================================');
+            
+            setTimeout(function() {
+                window.location.href = 'confirmation.html?type=cancel&name=' + encodeURIComponent(studentName) + 
+                    '&date=' + encodeURIComponent(cancelDate) + '&time=' + encodeURIComponent(cancelTime);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+

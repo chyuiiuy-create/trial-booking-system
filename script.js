@@ -217,6 +217,7 @@ function initializeFormSubmit() {
         
         // 保存到本地存儲（供管理頁面顯示）
         saveToLocalStorage(formData);
+        saveToSubmissions(formData);
         
         // 檢查是否已設置Google Apps Script URL
         if (GOOGLE_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
@@ -325,6 +326,35 @@ function saveToLocalStorage(bookingData) {
         console.log('✅ 預約數據已保存到本地存儲');
     } catch (error) {
         console.error('❌ 保存到本地存儲時發生錯誤：', error);
+    }
+}
+
+// ========================================
+// 保存到統一提交列表（供管理員查看）
+// ========================================
+function saveToSubmissions(data) {
+    try {
+        // 添加類型標識
+        const submissionData = {
+            ...data,
+            type: 'booking'
+        };
+        
+        // 獲取現有的提交記錄
+        const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+        
+        // 添加到開頭
+        submissions.unshift(submissionData);
+        
+        // 只保留最近的100條記錄
+        const trimmedSubmissions = submissions.slice(0, 100);
+        
+        // 保存
+        localStorage.setItem('submissions', JSON.stringify(trimmedSubmissions));
+        
+        console.log('✅ 已保存到提交列表');
+    } catch (error) {
+        console.error('❌ 保存到提交列表時發生錯誤：', error);
     }
 }
 

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<!-- 
+============================================
+試堂預約系統 - 更改預約頁面
+============================================
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更改預約 - 香港質心教育</title>
+    <meta name="description" content="香港質心教育 - 更改試堂預約">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        
+        <!-- 頁面標題區域 -->
+        <header class="header" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+            <div class="logo">
+                <span class="logo-icon">✏️</span>
+            </div>
+            <h1 class="title">香港質心教育</h1>
+            <p class="subtitle">更改預約</p>
+            <!-- 導航按鈕 -->
+            <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <a href="index.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">📝 新預約</a>
+                <a href="cancel.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">❌ 取消預約</a>
+                <a href="change.html" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">✏️ 更改預約</a>
+            </div>
+        </header>
+
+        <!-- 提示訊息區域 -->
+        <div id="alert-container"></div>
+
+        <!-- 更改預約表單 -->
+        <form id="change-form" class="booking-form">
+            
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span class="section-icon">👤</span>
+                    學生資料
+                </h2>
+                
+                <div class="form-group">
+                    <label for="student_name" class="form-label">
+                        學生姓名（中文全稱）<span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="student_name" 
+                        name="student_name" 
+                        class="form-input" 
+                        placeholder="請輸入學生中文全名"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-section" style="background: #fff3e0;">
+                <h2 class="section-title" style="color: #e65100;">
+                    <span class="section-icon">📅</span>
+                    原有預約
+                </h2>
+                
+                <div class="form-group">
+                    <label for="original_date" class="form-label">
+                        原預約日期 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="original_date" 
+                        name="original_date" 
+                        class="form-input" 
+                        placeholder="例如：1/15"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="original_time" class="form-label">
+                        原預約時間 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="original_time" 
+                        name="original_time" 
+                        class="form-input" 
+                        placeholder="例如：3pm-4pm"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-section" style="background: #e8f5e9;">
+                <h2 class="section-title" style="color: #2e7d32;">
+                    <span class="section-icon">🔄</span>
+                    更改為
+                </h2>
+                
+                <div class="form-group">
+                    <label for="new_date" class="form-label">
+                        新預約日期 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="new_date" 
+                        name="new_date" 
+                        class="form-input" 
+                        placeholder="例如：1/20、1/22-1/23"
+                        required
+                    >
+                    <span class="form-hint">只限本月</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_time" class="form-label">
+                        新預約時間 <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="new_time" 
+                        name="new_time" 
+                        class="form-input" 
+                        placeholder="例如：4pm-5pm、16:00-17:00"
+                        required
+                    >
+                    <span class="form-hint">可預約時間：10:00-21:00（30分鐘間隔）</span>
+                </div>
+            </div>
+
+            <!-- 提示信息 -->
+            <div style="background: #fff3e0; border-radius: 10px; padding: 16px; margin-bottom: 20px; text-align: center;">
+                <span style="color: #e65100; font-size: 14px;">⚠️ 請提前至少24小時更改預約</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" id="submit-btn" class="submit-btn" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                    <span class="btn-icon">✓</span>
+                    <span class="btn-text">確認更改</span>
+                </button>
+            </div>
+
+        </form>
+
+        <!-- 補習社資訊 -->
+        <div class="contact-info">
+            <h3 class="info-title">聯絡我們</h3>
+            <div class="info-items">
+                <div class="info-item">
+                    <span class="info-icon">📍</span>
+                    <span class="info-text">九龍太子彌敦道761號太子藍馬之城3樓B室<br>(太子地鐵站C1出口)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">📞</span>
+                    <span class="info-text">5765 1008</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2024 香港質心教育 版權所有</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.getElementById('change-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const studentName = document.getElementById('student_name').value.trim();
+            const originalDate = document.getElementById('original_date').value.trim();
+            const originalTime = document.getElementById('original_time').value.trim();
+            const newDate = document.getElementById('new_date').value.trim();
+            const newTime = document.getElementById('new_time').value.trim();
+            
+            if (!studentName || !originalDate || !originalTime || !newDate || !newTime) {
+                alert('請填寫所有必填欄位');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">處理中...</span>';
+            
+            // 保存到本地存儲
+            const formData = {
+                type: 'change',
+                id: 'CH' + Date.now().toString(36).toUpperCase(),
+                timestamp: new Date().toLocaleString('zh-HK'),
+                studentName: studentName,
+                originalDate: originalDate,
+                originalTime: originalTime,
+                newDate: newDate,
+                newTime: newTime,
+                status: '待處理'
+            };
+            
+            const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            submissions.unshift(formData);
+            localStorage.setItem('submissions', JSON.stringify(submissions));
+            
+            console.log('========================================');
+            console.log('✏️ 更改預約申請');
+            console.log('========================================');
+            console.log('學生姓名：', studentName);
+            console.log('原預約日期：', originalDate);
+            console.log('原預約時間：', originalTime);
+            console.log('新預約日期：', newDate);
+            console.log('新預約時間：', newTime);
+            console.log('========================================');
+            
+            setTimeout(function() {
+                window.location.href = 'confirmation.html?type=change&name=' + encodeURIComponent(studentName) + 
+                    '&olddate=' + encodeURIComponent(originalDate) + '&oldtime=' + encodeURIComponent(originalTime) +
+                    '&date=' + encodeURIComponent(newDate) + '&time=' + encodeURIComponent(newTime);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+

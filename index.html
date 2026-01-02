@@ -41,6 +41,12 @@
             <h1 class="title">香港質心教育</h1>
             <!-- 頁面副標題 -->
             <p class="subtitle">免費試堂預約</p>
+            <!-- 導航按鈕 -->
+            <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <a href="index.html" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">📝 新預約</a>
+                <a href="cancel.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">❌ 取消預約</a>
+                <a href="change.html" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px;">✏️ 更改預約</a>
+            </div>
         </header>
 
         <!-- ========================================
@@ -65,14 +71,14 @@
                 <!-- 學生姓名輸入框 -->
                 <div class="form-group">
                     <label for="student_name" class="form-label">
-                        學生姓名 <span class="required">*</span>
+                        學生姓名（中文全稱）<span class="required">*</span>
                     </label>
                     <input 
                         type="text" 
                         id="student_name" 
                         name="student_name" 
                         class="form-input" 
-                        placeholder="請輸入學生全名"
+                        placeholder="請輸入學生中文全名"
                         required
                     >
                 </div>
@@ -176,34 +182,39 @@
                 <!-- 預約日期輸入 -->
                 <div class="form-group">
                     <label for="booking_date" class="form-label">
-                        希望預約日期 <span class="required">*</span>
+                        預約日期 <span class="required">*</span>
                     </label>
                     <input 
                         type="text" 
                         id="booking_date" 
                         name="booking_date" 
                         class="form-input" 
-                        placeholder="例如：下星期一、1月15日、盡快"
+                        placeholder="例如：1/15、1/23-1/25"
                         required
                     >
-                    <span class="form-hint">請輸入您方便的日期，我們會盡量配合</span>
+                    <span class="form-hint">只限本月，可輸入單日或日期範圍</span>
                 </div>
                 
-                <!-- 預約時段輸入 -->
+                <!-- 預約時間輸入 -->
                 <div class="form-group">
                     <label for="time_slot" class="form-label">
-                        希望預約時段 <span class="required">*</span>
+                        預約時間 <span class="required">*</span>
                     </label>
                     <input 
                         type="text" 
                         id="time_slot" 
                         name="time_slot" 
                         class="form-input" 
-                        placeholder="例如：下午3-5點、放學後、週末上午"
+                        placeholder="例如：3pm-4pm、15:30-16:30"
                         required
                     >
-                    <span class="form-hint">請輸入您方便的時間，我們會致電確認</span>
+                    <span class="form-hint">可預約時間：10:00-21:00（30分鐘間隔）</span>
                 </div>
+            </div>
+            
+            <!-- 提示信息 -->
+            <div style="background: #e3f2fd; border-radius: 10px; padding: 16px; margin-bottom: 20px; text-align: center;">
+                <span style="color: #1565c0; font-size: 14px;">💡 提示：如需預約多個時段，可多次提交此表單</span>
             </div>
 
             <!-- ====================================
