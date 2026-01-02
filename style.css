@@ -4,6 +4,7 @@
    說明：這個文件定義了網站的所有樣式
    主色調：深藍色（專業穩重）
    輔助色：綠色（成功/確認）
+   部署平台：Cloudflare Pages
    ============================================ */
 
 /* ----------------------------------------
@@ -145,6 +146,18 @@ body {
     border-radius: var(--radius-md);
     text-align: center;
     font-weight: 500;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .alert-error {
@@ -157,6 +170,12 @@ body {
     background-color: #e8f8f0;
     color: var(--success-color);
     border: 1px solid var(--success-color);
+}
+
+.alert-info {
+    background-color: #e8f4fd;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
 }
 
 /* ----------------------------------------
@@ -302,7 +321,7 @@ body {
 }
 
 .submit-btn:disabled {
-    background: var(--text-light);
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -310,6 +329,16 @@ body {
 
 .btn-icon {
     font-size: 20px;
+}
+
+/* 載入動畫 */
+.submit-btn.loading .btn-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* ----------------------------------------

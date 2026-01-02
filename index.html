@@ -6,6 +6,7 @@
 ============================================
 說明：這是預約表單的主頁面
 家長可以在這裡填寫學生資料和選擇預約時間
+部署平台：Cloudflare Pages
 ============================================
 -->
 <head>
@@ -14,9 +15,11 @@
     <!-- 響應式設計，適應手機和電腦螢幕 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- 網頁標題 -->
-    <title>試堂預約 - {{ center_name }}</title>
+    <title>試堂預約 - 優質補習社</title>
+    <!-- 網頁描述（SEO優化） -->
+    <meta name="description" content="優質補習社免費試堂預約系統，歡迎小一至中六學生預約試堂。">
     <!-- 引入自定義CSS樣式 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="style.css">
     <!-- 引入Google字體（思源黑體） -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -35,7 +38,7 @@
                 <span class="logo-icon">📚</span>
             </div>
             <!-- 補習社名稱 -->
-            <h1 class="title">{{ center_name }}</h1>
+            <h1 class="title">優質補習社</h1>
             <!-- 頁面副標題 -->
             <p class="subtitle">免費試堂預約</p>
         </header>
@@ -43,21 +46,12 @@
         <!-- ========================================
              錯誤/提示訊息顯示區域
         ======================================== -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <!-- 根據訊息類型顯示不同樣式 -->
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <div id="alert-container"></div>
 
         <!-- ========================================
              預約表單
         ======================================== -->
-        <form class="booking-form" action="{{ url_for('submit_booking') }}" method="POST">
+        <form id="booking-form" class="booking-form">
             
             <!-- ====================================
                  學生資料區域
@@ -90,10 +84,20 @@
                     </label>
                     <select id="grade" name="grade" class="form-select" required>
                         <option value="" disabled selected>請選擇年級</option>
-                        <!-- 循環顯示所有年級選項 -->
-                        {% for grade in grades %}
-                            <option value="{{ grade }}">{{ grade }}</option>
-                        {% endfor %}
+                        <!-- 小學年級 -->
+                        <option value="小一">小一</option>
+                        <option value="小二">小二</option>
+                        <option value="小三">小三</option>
+                        <option value="小四">小四</option>
+                        <option value="小五">小五</option>
+                        <option value="小六">小六</option>
+                        <!-- 中學年級 -->
+                        <option value="中一">中一</option>
+                        <option value="中二">中二</option>
+                        <option value="中三">中三</option>
+                        <option value="中四">中四</option>
+                        <option value="中五">中五</option>
+                        <option value="中六">中六</option>
                     </select>
                 </div>
             </div>
@@ -118,7 +122,6 @@
                         name="phone" 
                         class="form-input" 
                         placeholder="例如：9123 4567"
-                        pattern="[0-9\s\-]+"
                         required
                     >
                     <span class="form-hint">請輸入香港手提電話號碼</span>
@@ -156,10 +159,7 @@
                     </label>
                     <select id="booking_date" name="booking_date" class="form-select" required>
                         <option value="" disabled selected>請選擇日期</option>
-                        <!-- 循環顯示可預約的日期 -->
-                        {% for date in available_dates %}
-                            <option value="{{ date.date }}">{{ date.full_display }}</option>
-                        {% endfor %}
+                        <!-- 日期選項將由JavaScript動態生成 -->
                     </select>
                 </div>
                 
@@ -170,10 +170,10 @@
                     </label>
                     <select id="time_slot" name="time_slot" class="form-select" required>
                         <option value="" disabled selected>請選擇時段</option>
-                        <!-- 循環顯示所有時段選項 -->
-                        {% for slot in time_slots %}
-                            <option value="{{ slot }}">{{ slot }}</option>
-                        {% endfor %}
+                        <option value="15:00 - 16:00">15:00 - 16:00</option>
+                        <option value="16:00 - 17:00">16:00 - 17:00</option>
+                        <option value="17:00 - 18:00">17:00 - 18:00</option>
+                        <option value="18:00 - 19:00">18:00 - 19:00</option>
                     </select>
                 </div>
             </div>
@@ -182,9 +182,9 @@
                  提交按鈕
             ==================================== -->
             <div class="form-actions">
-                <button type="submit" class="submit-btn">
+                <button type="submit" id="submit-btn" class="submit-btn">
                     <span class="btn-icon">✓</span>
-                    確認預約
+                    <span class="btn-text">確認預約</span>
                 </button>
             </div>
 
@@ -199,17 +199,17 @@
                 <!-- 地址 -->
                 <div class="info-item">
                     <span class="info-icon">📍</span>
-                    <span class="info-text">{{ center_address }}</span>
+                    <span class="info-text">香港九龍某某街123號</span>
                 </div>
                 <!-- 電話 -->
                 <div class="info-item">
                     <span class="info-icon">📞</span>
-                    <span class="info-text">{{ center_phone }}</span>
+                    <span class="info-text">2345 6789</span>
                 </div>
                 <!-- 電郵 -->
                 <div class="info-item">
                     <span class="info-icon">✉️</span>
-                    <span class="info-text">{{ center_email }}</span>
+                    <span class="info-text">info@tutorial.com</span>
                 </div>
             </div>
         </div>
@@ -218,68 +218,13 @@
              頁面底部
         ======================================== -->
         <footer class="footer">
-            <p>&copy; 2024 {{ center_name }} 版權所有</p>
+            <p>&copy; 2024 優質補習社 版權所有</p>
         </footer>
 
     </div>
 
-    <!-- ========================================
-         JavaScript - 表單驗證
-    ======================================== -->
-    <script>
-        // 當文檔加載完成後執行
-        document.addEventListener('DOMContentLoaded', function() {
-            // 獲取表單元素
-            const form = document.querySelector('.booking-form');
-            
-            // 表單提交前驗證
-            form.addEventListener('submit', function(event) {
-                // 獲取所有必填欄位的值
-                const studentName = document.getElementById('student_name').value.trim();
-                const grade = document.getElementById('grade').value;
-                const phone = document.getElementById('phone').value.trim();
-                const bookingDate = document.getElementById('booking_date').value;
-                const timeSlot = document.getElementById('time_slot').value;
-                
-                // 驗證必填欄位
-                if (!studentName || !grade || !phone || !bookingDate || !timeSlot) {
-                    event.preventDefault();  // 阻止表單提交
-                    alert('請填寫所有必填欄位');
-                    return false;
-                }
-                
-                // 驗證電話號碼格式（香港手機號碼通常是8位數字）
-                const phoneDigits = phone.replace(/[\s\-]/g, '');
-                if (phoneDigits.length < 8) {
-                    event.preventDefault();
-                    alert('請輸入有效的香港電話號碼');
-                    return false;
-                }
-                
-                // 驗證通過，顯示載入提示
-                const submitBtn = form.querySelector('.submit-btn');
-                submitBtn.innerHTML = '<span class="btn-icon">⏳</span> 處理中...';
-                submitBtn.disabled = true;
-                
-                return true;
-            });
-            
-            // 電話號碼自動格式化（每4位加一個空格）
-            const phoneInput = document.getElementById('phone');
-            phoneInput.addEventListener('input', function(e) {
-                // 移除非數字字符
-                let value = e.target.value.replace(/\D/g, '');
-                // 限制最多8位數字
-                value = value.substring(0, 8);
-                // 格式化為 XXXX XXXX
-                if (value.length > 4) {
-                    value = value.substring(0, 4) + ' ' + value.substring(4);
-                }
-                e.target.value = value;
-            });
-        });
-    </script>
-
+    <!-- 引入JavaScript文件 -->
+    <script src="script.js"></script>
 </body>
 </html>
 
