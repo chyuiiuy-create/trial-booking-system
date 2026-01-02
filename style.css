@@ -7,24 +7,6 @@
    部署平台：Cloudflare Pages
    ============================================ */
 
-/* ----------------------------------------
-   水印背景
-   ---------------------------------------- */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('watermark.png');
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: 35%;
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: 0;
-}
 
 /* ----------------------------------------
    CSS變量定義（顏色主題）
