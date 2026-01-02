@@ -218,9 +218,22 @@
             submissions.unshift(formData);
             localStorage.setItem('submissions', JSON.stringify(submissions));
             
+            // 發送到 Google Sheets
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzW4sqzfRtVPE9Bf-SWsE06Ozouvd4YllT6o82AXoFN6MktZYzdUNk07TQ-bxABwy6kPQ/exec';
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            }).then(function() {
+                console.log('✅ 更改申請已發送到 Google Sheets');
+            }).catch(function(error) {
+                console.error('發送失敗：', error);
+            });
+            
             setTimeout(function() {
                 window.location.href = `confirmation.html?type=change&name=${encodeURIComponent(studentName)}&olddate=${encodeURIComponent(oldDate)}&oldtime=${encodeURIComponent(oldTime)}&date=${encodeURIComponent(newDate)}&time=${encodeURIComponent(newTime)}`;
-            }, 1000);
+            }, 1500);
         });
     </script>
 </body>

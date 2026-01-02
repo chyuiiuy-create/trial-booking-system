@@ -578,6 +578,9 @@
             });
         }
         
+        // Google Apps Script URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzW4sqzfRtVPE9Bf-SWsE06Ozouvd4YllT6o82AXoFN6MktZYzdUNk07TQ-bxABwy6kPQ/exec';
+        
         // 表單提交
         function initFormSubmit() {
             document.getElementById('booking-form').addEventListener('submit', function(e) {
@@ -621,8 +624,8 @@
                     subject: subject,
                     phone: phone,
                     email: document.getElementById('email').value.trim() || '未提供',
-                    selectedDates: selectedList.join('; '),
-                    selectedTimes: '',
+                    preferredDate: selectedList.join('; '),
+                    preferredTime: '',
                     status: '待處理'
                 };
                 
@@ -630,6 +633,18 @@
                 const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
                 submissions.unshift(formData);
                 localStorage.setItem('submissions', JSON.stringify(submissions));
+                
+                // 發送到 Google Sheets
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                }).then(function() {
+                    console.log('✅ 數據已發送到 Google Sheets');
+                }).catch(function(error) {
+                    console.error('發送失敗：', error);
+                });
                 
                 console.log('========================================');
                 console.log('📝 新預約提交');
@@ -648,7 +663,7 @@
                         time: ''
                     });
                     window.location.href = 'confirmation.html?' + params.toString();
-                }, 1000);
+                }, 1500);
             });
         }
     </script>

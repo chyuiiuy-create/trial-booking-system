@@ -12,7 +12,7 @@
 
 // 【重要】請將下面的URL替換為您的Google Apps Script網址
 // 如果您還沒有設置，請參考README.md中的說明
-const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzW4sqzfRtVPE9Bf-SWsE06Ozouvd4YllT6o82AXoFN6MktZYzdUNk07TQ-bxABwy6kPQ/exec';
 
 // ========================================
 // 星期名稱對照表（中文）
