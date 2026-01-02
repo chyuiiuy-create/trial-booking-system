@@ -12,8 +12,6 @@
     <meta name="description" content="香港質心教育免費試堂預約系統">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Google reCAPTCHA -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         /* 日曆樣式 */
         .calendar-container {
@@ -164,10 +162,6 @@
             box-shadow: none;
         }
         
-        /* reCAPTCHA 容器 */
-        .recaptcha-container {
-            display: flex;
-            justify-content: center;
             margin: 20px 0;
         }
         
@@ -331,10 +325,6 @@
                 💡 提示：如需預約多個不同的時段組合，可多次提交此表單。
             </div>
 
-            <!-- reCAPTCHA -->
-            <div class="recaptcha-container">
-                <div class="g-recaptcha" data-sitekey="6Lfk4D0sAAAAAPhKhsr5waPSpGjCX6qzcF26F65F"></div>
-            </div>
 
             <!-- 提交按鈕 -->
             <div class="form-actions">
@@ -615,12 +605,6 @@
                     return;
                 }
                 
-                // 檢查 reCAPTCHA
-                const recaptchaResponse = grecaptcha.getResponse();
-                if (!recaptchaResponse) {
-                    alert('請完成驗證碼驗證');
-                    return;
-                }
                 
                 // 顯示載入
                 const submitBtn = document.getElementById('submit-btn');
