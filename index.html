@@ -173,29 +173,36 @@
                     預約時間
                 </h2>
                 
-                <!-- 預約日期選擇 -->
+                <!-- 預約日期輸入 -->
                 <div class="form-group">
                     <label for="booking_date" class="form-label">
-                        預約日期 <span class="required">*</span>
+                        希望預約日期 <span class="required">*</span>
                     </label>
-                    <select id="booking_date" name="booking_date" class="form-select" required>
-                        <option value="" disabled selected>請選擇日期</option>
-                        <!-- 日期選項將由JavaScript動態生成 -->
-                    </select>
+                    <input 
+                        type="text" 
+                        id="booking_date" 
+                        name="booking_date" 
+                        class="form-input" 
+                        placeholder="例如：下星期一、1月15日、盡快"
+                        required
+                    >
+                    <span class="form-hint">請輸入您方便的日期，我們會盡量配合</span>
                 </div>
                 
-                <!-- 預約時段選擇 -->
+                <!-- 預約時段輸入 -->
                 <div class="form-group">
                     <label for="time_slot" class="form-label">
-                        預約時段 <span class="required">*</span>
+                        希望預約時段 <span class="required">*</span>
                     </label>
-                    <select id="time_slot" name="time_slot" class="form-select" required>
-                        <option value="" disabled selected>請選擇時段</option>
-                        <option value="15:00 - 16:00">15:00 - 16:00</option>
-                        <option value="16:00 - 17:00">16:00 - 17:00</option>
-                        <option value="17:00 - 18:00">17:00 - 18:00</option>
-                        <option value="18:00 - 19:00">18:00 - 19:00</option>
-                    </select>
+                    <input 
+                        type="text" 
+                        id="time_slot" 
+                        name="time_slot" 
+                        class="form-input" 
+                        placeholder="例如：下午3-5點、放學後、週末上午"
+                        required
+                    >
+                    <span class="form-hint">請輸入您方便的時間，我們會致電確認</span>
                 </div>
             </div>
 

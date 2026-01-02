@@ -31,9 +31,6 @@ const WEEKDAY_NAMES = {
 // 頁面載入完成後執行
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始化日期選項
-    initializeDateOptions();
-    
     // 初始化電話號碼格式化
     initializePhoneFormatter();
     
@@ -177,8 +174,8 @@ function initializeFormSubmit() {
         const subject = document.getElementById('subject').value;
         const phone = document.getElementById('phone').value.trim();
         const email = document.getElementById('email').value.trim();
-        const bookingDate = document.getElementById('booking_date').value;
-        const timeSlot = document.getElementById('time_slot').value;
+        const bookingDate = document.getElementById('booking_date').value.trim();
+        const timeSlot = document.getElementById('time_slot').value.trim();
         
         // 驗證必填欄位
         if (!studentName || !grade || !subject || !phone || !bookingDate || !timeSlot) {
@@ -199,22 +196,23 @@ function initializeFormSubmit() {
         btnIcon.textContent = '⏳';
         btnText.textContent = '處理中...';
         
-        // 格式化預約日期顯示
-        const dateObj = new Date(bookingDate);
-        const weekday = dateObj.getDay();
-        const formattedDate = `${dateObj.getFullYear()}年${String(dateObj.getMonth() + 1).padStart(2, '0')}月${String(dateObj.getDate()).padStart(2, '0')}日 (${WEEKDAY_NAMES[weekday]})`;
+        // 生成唯一ID
+        const bookingId = 'BK' + Date.now().toString(36).toUpperCase();
         
         // 準備提交的數據
         const formData = {
+            id: bookingId,
             timestamp: new Date().toLocaleString('zh-HK'),
             studentName: studentName,
             grade: grade,
             subject: subject,
             phone: phone,
             email: email || '未提供',
-            bookingDate: formattedDate,
-            timeSlot: timeSlot,
-            status: '待確認'
+            preferredDate: bookingDate,
+            preferredTime: timeSlot,
+            confirmedDate: '',
+            confirmedTime: '',
+            status: '待處理'
         };
         
         // 保存到本地存儲（供管理頁面顯示）
@@ -226,21 +224,22 @@ function initializeFormSubmit() {
             console.log('========================================');
             console.log('📋 模擬模式：預約數據');
             console.log('========================================');
+            console.log('預約編號：', formData.id);
             console.log('提交時間：', formData.timestamp);
             console.log('學生姓名：', formData.studentName);
             console.log('年級：', formData.grade);
             console.log('科目：', formData.subject);
             console.log('聯絡電話：', formData.phone);
             console.log('電郵地址：', formData.email);
-            console.log('預約日期：', formData.bookingDate);
-            console.log('預約時段：', formData.timeSlot);
+            console.log('希望日期：', formData.preferredDate);
+            console.log('希望時段：', formData.preferredTime);
             console.log('========================================');
             console.log('⚠️ 請在script.js中設置GOOGLE_SCRIPT_URL以啟用數據保存到Google Sheets');
             console.log('========================================');
             
             // 延遲1秒後跳轉到確認頁面（模擬網絡請求）
             setTimeout(function() {
-                redirectToConfirmation(studentName, grade, subject, formattedDate, timeSlot);
+                redirectToConfirmation(studentName, grade, subject, bookingDate, timeSlot);
             }, 1000);
             
         } else {
@@ -248,7 +247,7 @@ function initializeFormSubmit() {
             sendToGoogleSheets(formData, function(success) {
                 if (success) {
                     // 成功，跳轉到確認頁面
-                    redirectToConfirmation(studentName, grade, subject, formattedDate, timeSlot);
+                    redirectToConfirmation(studentName, grade, subject, bookingDate, timeSlot);
                 } else {
                     // 失敗，顯示錯誤
                     showAlert('提交失敗，請稍後再試', 'error');
