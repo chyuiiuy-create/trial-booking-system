@@ -62,6 +62,11 @@
                     <span class="detail-label">年級</span>
                     <span class="detail-value" id="confirm-grade">-</span>
                 </div>
+                <!-- 科目 -->
+                <div class="detail-item">
+                    <span class="detail-label">科目</span>
+                    <span class="detail-value" id="confirm-subject">-</span>
+                </div>
                 <!-- 預約日期 -->
                 <div class="detail-item">
                     <span class="detail-label">預約日期</span>
@@ -139,12 +144,14 @@
             // 獲取各個參數值
             const studentName = urlParams.get('name') || '-';
             const grade = urlParams.get('grade') || '-';
+            const subject = urlParams.get('subject') || '-';
             const bookingDate = urlParams.get('date') || '-';
             const timeSlot = urlParams.get('time') || '-';
             
             // 顯示預約詳情
             document.getElementById('confirm-name').textContent = studentName;
             document.getElementById('confirm-grade').textContent = grade;
+            document.getElementById('confirm-subject').textContent = subject;
             document.getElementById('confirm-date').textContent = bookingDate;
             document.getElementById('confirm-time').textContent = timeSlot;
             

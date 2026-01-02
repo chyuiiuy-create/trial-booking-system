@@ -38,6 +38,7 @@ function doPost(e) {
         '提交時間',
         '學生姓名',
         '年級',
+        '科目',
         '聯絡電話',
         '電郵地址',
         '預約日期',
@@ -46,7 +47,7 @@ function doPost(e) {
       ]);
       
       // 設置表頭樣式
-      var headerRange = sheet.getRange('A1:H1');
+      var headerRange = sheet.getRange('A1:I1');
       headerRange.setFontWeight('bold');
       headerRange.setBackground('#4a86e8');
       headerRange.setFontColor('#ffffff');
@@ -57,6 +58,7 @@ function doPost(e) {
       data.timestamp,      // 提交時間
       data.studentName,    // 學生姓名
       data.grade,          // 年級
+      data.subject,        // 科目
       data.phone,          // 聯絡電話
       data.email,          // 電郵地址
       data.bookingDate,    // 預約日期

@@ -397,9 +397,12 @@
                 <div class="booking-card ${booking.status === '待確認' ? 'pending' : 'confirmed'}">
                     <div class="booking-header">
                         <span class="booking-name">${booking.studentName || booking.name || '-'}</span>
-                        <span class="booking-grade">${booking.grade || '-'}</span>
+                        <span class="booking-grade">${booking.grade || '-'} · ${booking.subject || '-'}</span>
                     </div>
                     <div class="booking-details">
+                        <div class="booking-detail">
+                            📚 ${booking.subject || '-'}
+                        </div>
                         <div class="booking-detail">
                             📅 ${booking.bookingDate || booking.date || '-'}
                         </div>

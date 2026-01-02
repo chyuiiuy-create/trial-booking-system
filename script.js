@@ -174,13 +174,14 @@ function initializeFormSubmit() {
         // 獲取表單數據
         const studentName = document.getElementById('student_name').value.trim();
         const grade = document.getElementById('grade').value;
+        const subject = document.getElementById('subject').value;
         const phone = document.getElementById('phone').value.trim();
         const email = document.getElementById('email').value.trim();
         const bookingDate = document.getElementById('booking_date').value;
         const timeSlot = document.getElementById('time_slot').value;
         
         // 驗證必填欄位
-        if (!studentName || !grade || !phone || !bookingDate || !timeSlot) {
+        if (!studentName || !grade || !subject || !phone || !bookingDate || !timeSlot) {
             showAlert('請填寫所有必填欄位', 'error');
             return;
         }
@@ -208,6 +209,7 @@ function initializeFormSubmit() {
             timestamp: new Date().toLocaleString('zh-HK'),
             studentName: studentName,
             grade: grade,
+            subject: subject,
             phone: phone,
             email: email || '未提供',
             bookingDate: formattedDate,
@@ -227,6 +229,7 @@ function initializeFormSubmit() {
             console.log('提交時間：', formData.timestamp);
             console.log('學生姓名：', formData.studentName);
             console.log('年級：', formData.grade);
+            console.log('科目：', formData.subject);
             console.log('聯絡電話：', formData.phone);
             console.log('電郵地址：', formData.email);
             console.log('預約日期：', formData.bookingDate);
@@ -237,7 +240,7 @@ function initializeFormSubmit() {
             
             // 延遲1秒後跳轉到確認頁面（模擬網絡請求）
             setTimeout(function() {
-                redirectToConfirmation(studentName, grade, formattedDate, timeSlot);
+                redirectToConfirmation(studentName, grade, subject, formattedDate, timeSlot);
             }, 1000);
             
         } else {
@@ -245,7 +248,7 @@ function initializeFormSubmit() {
             sendToGoogleSheets(formData, function(success) {
                 if (success) {
                     // 成功，跳轉到確認頁面
-                    redirectToConfirmation(studentName, grade, formattedDate, timeSlot);
+                    redirectToConfirmation(studentName, grade, subject, formattedDate, timeSlot);
                 } else {
                     // 失敗，顯示錯誤
                     showAlert('提交失敗，請稍後再試', 'error');
@@ -289,11 +292,12 @@ function sendToGoogleSheets(data, callback) {
 // ========================================
 // 跳轉到確認頁面
 // ========================================
-function redirectToConfirmation(name, grade, date, time) {
+function redirectToConfirmation(name, grade, subject, date, time) {
     // 構建URL參數
     const params = new URLSearchParams({
         name: name,
         grade: grade,
+        subject: subject,
         date: date,
         time: time
     });
