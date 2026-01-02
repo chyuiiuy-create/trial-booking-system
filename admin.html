@@ -381,10 +381,12 @@
             <div class="admin-content">
                 <!-- 重要提示 -->
                 <div class="important-notice">
-                    <h4>⚠️ 重要：如何查看用戶提交的數據</h4>
-                    <p>用戶提交的數據保存在 Google Sheets 中（而非此頁面）。請點擊下方按鈕查看：</p>
-                    <a href="https://docs.google.com/spreadsheets/d/1I78kkRrMaUG8JB_tFhxUELm8QY64PFmRnYKCkAu3yrA/edit" target="_blank" id="sheets-link">📊 打開 Google Sheets 查看預約</a>
-                    <p style="margin-top: 10px; font-size: 12px;">（此頁面顯示的是本地瀏覽器緩存，僅供測試用）</p>
+                    <h4>✅ 數據來源：Google Sheets</h4>
+                    <p>所有預約記錄從 Google Sheets 實時載入，支援跨設備查看。</p>
+                    <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <a href="https://docs.google.com/spreadsheets/d/1I78kkRrMaUG8JB_tFhxUELm8QY64PFmRnYKCkAu3yrA/edit" target="_blank" id="sheets-link">📊 打開 Google Sheets</a>
+                        <button onclick="loadSubmissions()" style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">🔄 刷新數據</button>
+                    </div>
                 </div>
                 
                 <!-- 統計 -->
@@ -494,9 +496,41 @@
         let allSubmissions = [];
         let currentFilter = 'all';
         let currentIndex = -1;
+        let isLoading = false;
         
-        function loadSubmissions() {
-            allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+        // 從 Google Sheets 加載數據
+        async function loadSubmissions() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            // 顯示載入狀態
+            document.getElementById('submissions-list').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">⏳</div>
+                    <div>正在從 Google Sheets 載入數據...</div>
+                </div>
+            `;
+            
+            try {
+                // 從 Google Sheets 獲取數據
+                const response = await fetch(GOOGLE_SCRIPT_URL + '?action=getAll');
+                const result = await response.json();
+                
+                if (result.status === 'success' && result.data) {
+                    allSubmissions = result.data;
+                    console.log('✅ 從 Google Sheets 載入了 ' + allSubmissions.length + ' 條記錄');
+                } else {
+                    console.error('載入失敗：', result.message);
+                    // 回退到 localStorage
+                    allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+                }
+            } catch (error) {
+                console.error('網絡錯誤，使用本地緩存：', error);
+                // 回退到 localStorage
+                allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+            }
+            
+            isLoading = false;
             updateStats();
             renderSubmissions();
         }
@@ -534,8 +568,8 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">📭</div>
-                        <p>暫無本地緩存記錄</p>
-                        <p style="font-size: 13px; color: #999;">請查看 Google Sheets 獲取真實數據</p>
+                        <p>暫無預約記錄</p>
+                        <p style="font-size: 13px; color: #999;">新提交的預約將顯示在這裡</p>
                     </div>
                 `;
                 return;
@@ -543,12 +577,14 @@
             
             container.innerHTML = filtered.map((sub, idx) => {
                 const realIndex = allSubmissions.indexOf(sub);
-                const typeLabel = { booking: '新預約', cancel: '取消', change: '更改' }[sub.type] || '未知';
+                const typeLabel = { booking: '新預約', cancel: '取消', change: '更改' }[sub.type] || '新預約';
+                // 截取日期顯示（最多顯示30個字符）
+                const dateStr = (sub.preferredDate || sub.selectedDates || '').substring(0, 30);
                 const meta = sub.type === 'booking' 
-                    ? `${sub.grade || ''} · ${sub.subject || ''} · ${sub.selectedDates || sub.preferredDate || ''}`
+                    ? `${sub.grade || ''} · ${sub.subject || ''} · ${dateStr}${dateStr.length >= 30 ? '...' : ''}`
                     : sub.type === 'cancel'
-                    ? `取消：${sub.cancelDate || ''} ${sub.cancelTime || ''}`
-                    : `${sub.originalDate || ''} → ${sub.newDate || ''}`;
+                    ? `取消：${sub.cancelDate || sub.preferredDate || ''}`
+                    : `更改：${sub.preferredDate || ''}`;
                 
                 return `
                     <div class="submission-item">
@@ -609,13 +645,15 @@
                         <span class="detail-value">${sub.email || '-'}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">預約日期</span>
-                        <span class="detail-value">${sub.selectedDates || sub.preferredDate || '-'}</span>
+                        <span class="detail-label">預約日期時段</span>
+                        <span class="detail-value">${sub.preferredDate || sub.selectedDates || '-'}</span>
                     </div>
+                    ${sub.confirmedDate ? `
                     <div class="detail-row">
-                        <span class="detail-label">預約時間</span>
-                        <span class="detail-value">${sub.selectedTimes || sub.preferredTime || '-'}</span>
+                        <span class="detail-label">已確認時段</span>
+                        <span class="detail-value" style="color: #27ae60; font-weight: 600;">${sub.confirmedDate} ${sub.confirmedTime || ''}</span>
                     </div>
+                    ` : ''}
                 `;
             } else if (sub.type === 'cancel') {
                 detailsHtml += `
@@ -658,7 +696,7 @@
             
             if (sub.status === '待處理') {
                 // 解析提交者選擇的日期時段
-                const preferredSlots = (sub.selectedDates || sub.preferredDate || '').split('; ').filter(s => s.trim());
+                const preferredSlots = (sub.preferredDate || sub.selectedDates || '').split('; ').filter(s => s.trim());
                 
                 let slotsOptions = '';
                 if (preferredSlots.length > 0) {

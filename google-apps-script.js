@@ -295,14 +295,92 @@ function sendDeclineEmail(email, studentName, reason) {
 }
 
 // ========================================
-// 處理GET請求（用於測試）
+// 處理GET請求（獲取所有預約記錄）
 // ========================================
 function doGet(e) {
+  try {
+    var action = e.parameter.action || 'status';
+    
+    if (action === 'getAll') {
+      return getAllBookings();
+    } else {
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          'status': 'success',
+          'message': '試堂預約系統API運行正常',
+          'center': CENTER_NAME
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        'status': 'error',
+        'message': error.toString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ========================================
+// 獲取所有預約記錄
+// ========================================
+function getAllBookings() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getActiveSheet();
+  var dataRange = sheet.getDataRange();
+  var values = dataRange.getValues();
+  
+  // 如果沒有數據或只有表頭
+  if (values.length <= 1) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        'status': 'success',
+        'data': []
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // 轉換為對象數組
+  var headers = values[0];
+  var bookings = [];
+  
+  for (var i = 1; i < values.length; i++) {
+    var row = values[i];
+    var booking = {
+      id: row[0] || '',
+      timestamp: row[1] || '',
+      studentName: row[2] || '',
+      grade: row[3] || '',
+      subject: row[4] || '',
+      phone: row[5] || '',
+      email: row[6] || '',
+      preferredDate: row[7] || '',
+      preferredTime: row[8] || '',
+      confirmedDate: row[9] || '',
+      confirmedTime: row[10] || '',
+      status: row[11] || '待處理',
+      notes: row[12] || '',
+      type: 'booking' // 默認類型
+    };
+    
+    // 根據 ID 前綴判斷類型
+    if (booking.id.startsWith('CL')) {
+      booking.type = 'cancel';
+    } else if (booking.id.startsWith('CH')) {
+      booking.type = 'change';
+    }
+    
+    bookings.push(booking);
+  }
+  
+  // 按時間倒序排列（最新的在前）
+  bookings.reverse();
+  
   return ContentService
     .createTextOutput(JSON.stringify({
       'status': 'success',
-      'message': '試堂預約系統API運行正常',
-      'center': CENTER_NAME
+      'data': bookings
     }))
     .setMimeType(ContentService.MimeType.JSON);
 }
