@@ -185,7 +185,8 @@ function confirmBooking(data) {
           values[i][3],  // 年級
           values[i][4],  // 科目
           data.confirmedDate,
-          data.confirmedTime
+          data.confirmedTime,
+          data.bookingId  // 預約ID（用於生成管理連結）
         );
       }
       
@@ -241,10 +242,18 @@ function declineBooking(data) {
 }
 
 // ========================================
-// 發送確認郵件
+// 發送確認郵件（帶預約ID）
 // ========================================
-function sendConfirmationEmail(email, studentName, grade, subject, date, time) {
-  var emailSubject = '試堂預約確認 - ' + CENTER_NAME;
+function sendConfirmationEmail(email, studentName, grade, subject, date, time, bookingId) {
+  var emailSubject = '✅ 試堂預約確認 - ' + CENTER_NAME;
+  
+  // 生成管理預約的連結
+  var manageUrl = 'https://trial-booking-system.pages.dev/manage.html?' +
+    'id=' + encodeURIComponent(bookingId || '') +
+    '&name=' + encodeURIComponent(studentName) +
+    '&date=' + encodeURIComponent(date) +
+    '&time=' + encodeURIComponent(time) +
+    '&subject=' + encodeURIComponent(subject);
   
   var emailBody = '親愛的家長您好：\n\n' +
     '感謝您為 ' + studentName + ' 同學預約試堂！\n\n' +
@@ -259,7 +268,10 @@ function sendConfirmationEmail(email, studentName, grade, subject, date, time) {
     '請於預約時間前10分鐘到達：\n' +
     '📍 地址：' + CENTER_ADDRESS + '\n' +
     '📞 電話：' + CENTER_PHONE + '\n\n' +
-    '如需更改或取消預約，請提前24小時通知我們。\n\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+    '📝 如需更改或取消預約，請點擊以下連結：\n' +
+    manageUrl + '\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
     '祝您生活愉快！\n\n' +
     CENTER_NAME;
   

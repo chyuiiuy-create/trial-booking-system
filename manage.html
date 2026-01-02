@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<!-- 
+============================================
+試堂預約系統 - 管理預約頁面（取消/更改）
+============================================
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理預約 - 香港質心教育</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .manage-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .manage-header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        .manage-header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .manage-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .booking-info {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .booking-info h3 {
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-row {
+            display: flex;
+            padding: 8px 0;
+        }
+        .info-label {
+            width: 100px;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        .action-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .action-section h3 {
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 16px;
+        }
+        .action-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .action-tab {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .action-tab:hover {
+            border-color: #667eea;
+        }
+        .action-tab.active {
+            border-color: #667eea;
+            background: #f8f9ff;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .action-tab.cancel.active {
+            border-color: #e74c3c;
+            background: #fef5f5;
+            color: #e74c3c;
+        }
+        .action-content {
+            display: none;
+        }
+        .action-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus, .form-textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-btn.change {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .submit-btn.cancel {
+            background: #e74c3c;
+            color: white;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #856404;
+        }
+        .error-box {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            color: #721c24;
+        }
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #155724;
+        }
+        .success-box h3 {
+            margin-bottom: 10px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="manage-container">
+        <div class="manage-header">
+            <h1>📅 管理您的預約</h1>
+            <p>香港質心教育</p>
+        </div>
+        
+        <!-- 預約資訊 -->
+        <div class="booking-info" id="booking-info">
+            <h3>📋 您的預約資訊</h3>
+            <div class="info-row">
+                <span class="info-label">學生姓名</span>
+                <span class="info-value" id="info-name">載入中...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">確認日期</span>
+                <span class="info-value" id="info-date">載入中...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">確認時間</span>
+                <span class="info-value" id="info-time">載入中...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">科目</span>
+                <span class="info-value" id="info-subject">載入中...</span>
+            </div>
+        </div>
+        
+        <!-- 錯誤訊息 -->
+        <div class="error-box" id="error-box" style="display: none;">
+            <p>⚠️ 無法載入預約資訊</p>
+            <p style="font-size: 12px; margin-top: 8px;">請確認您的連結是否正確，或聯絡我們：5765 1008</p>
+        </div>
+        
+        <!-- 成功訊息 -->
+        <div class="success-box" id="success-box" style="display: none;">
+            <h3 id="success-title">✅ 提交成功</h3>
+            <p id="success-message">我們已收到您的申請，將盡快處理。</p>
+            <p style="margin-top: 12px; font-size: 13px;">如有疑問，請致電：5765 1008</p>
+        </div>
+        
+        <!-- 操作區域 -->
+        <div class="action-section" id="action-section">
+            <h3>✏️ 選擇操作</h3>
+            
+            <div class="action-tabs">
+                <div class="action-tab active" onclick="switchTab('change')">
+                    🔄 更改預約
+                </div>
+                <div class="action-tab cancel" onclick="switchTab('cancel')">
+                    ❌ 取消預約
+                </div>
+            </div>
+            
+            <!-- 更改預約表單 -->
+            <div class="action-content active" id="change-content">
+                <div class="form-group">
+                    <label class="form-label">新的預約日期</label>
+                    <input type="text" class="form-input" id="new-date" placeholder="例如：1月20日">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">新的預約時間</label>
+                    <input type="text" class="form-input" id="new-time" placeholder="例如：15:00-16:00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">備註（可選）</label>
+                    <textarea class="form-textarea" id="change-notes" placeholder="如有其他需要說明的事項..."></textarea>
+                </div>
+                <button class="submit-btn change" onclick="submitChange()">
+                    確認更改預約
+                </button>
+            </div>
+            
+            <!-- 取消預約表單 -->
+            <div class="action-content" id="cancel-content">
+                <div class="warning-box">
+                    ⚠️ 取消預約後，您需要重新預約才能安排試堂。
+                </div>
+                <div class="form-group">
+                    <label class="form-label">取消原因（可選）</label>
+                    <textarea class="form-textarea" id="cancel-reason" placeholder="請告訴我們取消的原因..."></textarea>
+                </div>
+                <button class="submit-btn cancel" onclick="submitCancel()">
+                    確認取消預約
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📍 九龍太子彌敦道761號太子藍馬之城3樓B室</p>
+            <p>📞 5765 1008</p>
+            <p style="margin-top: 10px;">&copy; 2024 香港質心教育 版權所有</p>
+        </div>
+    </div>
+    
+    <script>
+        // Google Apps Script URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzW4sqzfRtVPE9Bf-SWsE06Ozouvd4YllT6o82AXoFN6MktZYzdUNk07TQ-bxABwy6kPQ/exec';
+        
+        // 從 URL 參數獲取預約信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingId = urlParams.get('id');
+        const studentName = urlParams.get('name');
+        const confirmedDate = urlParams.get('date');
+        const confirmedTime = urlParams.get('time');
+        const subject = urlParams.get('subject');
+        
+        // 初始化頁面
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!bookingId || !studentName) {
+                document.getElementById('booking-info').style.display = 'none';
+                document.getElementById('action-section').style.display = 'none';
+                document.getElementById('error-box').style.display = 'block';
+                return;
+            }
+            
+            // 顯示預約信息
+            document.getElementById('info-name').textContent = decodeURIComponent(studentName);
+            document.getElementById('info-date').textContent = decodeURIComponent(confirmedDate || '未確認');
+            document.getElementById('info-time').textContent = decodeURIComponent(confirmedTime || '未確認');
+            document.getElementById('info-subject').textContent = decodeURIComponent(subject || '未指定');
+        });
+        
+        // 切換標籤
+        function switchTab(tab) {
+            document.querySelectorAll('.action-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.action-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'change') {
+                document.querySelector('.action-tab:first-child').classList.add('active');
+                document.getElementById('change-content').classList.add('active');
+            } else {
+                document.querySelector('.action-tab.cancel').classList.add('active');
+                document.getElementById('cancel-content').classList.add('active');
+            }
+        }
+        
+        // 提交更改
+        function submitChange() {
+            const newDate = document.getElementById('new-date').value.trim();
+            const newTime = document.getElementById('new-time').value.trim();
+            const notes = document.getElementById('change-notes').value.trim();
+            
+            if (!newDate || !newTime) {
+                alert('請填寫新的預約日期和時間');
+                return;
+            }
+            
+            const btn = document.querySelector('.submit-btn.change');
+            btn.disabled = true;
+            btn.textContent = '處理中...';
+            
+            const data = {
+                type: 'change',
+                id: 'CH' + Date.now().toString(36).toUpperCase(),
+                originalId: bookingId,
+                studentName: decodeURIComponent(studentName),
+                originalDate: decodeURIComponent(confirmedDate || ''),
+                originalTime: decodeURIComponent(confirmedTime || ''),
+                newDate: newDate,
+                newTime: newTime,
+                notes: notes,
+                timestamp: new Date().toLocaleString('zh-HK'),
+                status: '待處理'
+            };
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                showSuccess('更改申請已提交', '我們將盡快處理您的更改申請，並以電郵通知您。');
+            }).catch(err => {
+                console.error(err);
+                alert('提交失敗，請稍後再試');
+                btn.disabled = false;
+                btn.textContent = '確認更改預約';
+            });
+        }
+        
+        // 提交取消
+        function submitCancel() {
+            if (!confirm('確定要取消預約嗎？')) return;
+            
+            const reason = document.getElementById('cancel-reason').value.trim();
+            
+            const btn = document.querySelector('.submit-btn.cancel');
+            btn.disabled = true;
+            btn.textContent = '處理中...';
+            
+            const data = {
+                type: 'cancel',
+                id: 'CL' + Date.now().toString(36).toUpperCase(),
+                originalId: bookingId,
+                studentName: decodeURIComponent(studentName),
+                cancelDate: decodeURIComponent(confirmedDate || ''),
+                cancelTime: decodeURIComponent(confirmedTime || ''),
+                reason: reason,
+                timestamp: new Date().toLocaleString('zh-HK'),
+                status: '待處理'
+            };
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).then(() => {
+                showSuccess('取消申請已提交', '我們已收到您的取消申請。如需重新預約，請訪問我們的網站。');
+            }).catch(err => {
+                console.error(err);
+                alert('提交失敗，請稍後再試');
+                btn.disabled = false;
+                btn.textContent = '確認取消預約';
+            });
+        }
+        
+        // 顯示成功訊息
+        function showSuccess(title, message) {
+            document.getElementById('booking-info').style.display = 'none';
+            document.getElementById('action-section').style.display = 'none';
+            document.getElementById('success-title').textContent = '✅ ' + title;
+            document.getElementById('success-message').textContent = message;
+            document.getElementById('success-box').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+
