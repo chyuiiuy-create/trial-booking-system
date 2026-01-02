@@ -44,6 +44,8 @@ function doPost(e) {
       return confirmBooking(data);
     } else if (data.action === 'decline') {
       return declineBooking(data);
+    } else if (data.action === 'clientConfirm') {
+      return clientConfirmBooking(data);
     } else {
       return saveNewBooking(data);
     }
@@ -175,7 +177,7 @@ function confirmBooking(data) {
       // 更新確認日期、確認時段和狀態
       sheet.getRange(i + 1, 10).setValue(data.confirmedDate);  // J列：確認日期
       sheet.getRange(i + 1, 11).setValue(data.confirmedTime);  // K列：確認時段
-      sheet.getRange(i + 1, 12).setValue('已確認');             // L列：狀態
+      sheet.getRange(i + 1, 12).setValue('待客戶確認');          // L列：狀態（等待家長確認）
       
       // 發送確認郵件
       if (values[i][6] && values[i][6] !== '未提供') {
@@ -242,12 +244,77 @@ function declineBooking(data) {
 }
 
 // ========================================
-// 發送確認郵件（帶預約ID）
+// 客戶確認預約（家長點擊確認連結）
+// ========================================
+function clientConfirmBooking(data) {
+  // 獲取試算表
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getActiveSheet();
+  
+  // 查找對應的預約（根據ID）
+  var dataRange = sheet.getDataRange();
+  var values = dataRange.getValues();
+  
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][0] === data.bookingId) {
+      // 更新狀態為「已確認」
+      sheet.getRange(i + 1, 12).setValue('已確認');  // L列：狀態
+      sheet.getRange(i + 1, 13).setValue('客戶已確認 - ' + new Date().toLocaleString('zh-HK')); // M列：備註
+      
+      // 發送通知給管理員
+      sendAdminClientConfirmNotification(values[i][2], values[i][9], values[i][10]);
+      
+      break;
+    }
+  }
+  
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      'status': 'success',
+      'message': '客戶已確認預約'
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ========================================
+// 發送客戶確認通知給管理員
+// ========================================
+function sendAdminClientConfirmNotification(studentName, confirmedDate, confirmedTime) {
+  var emailSubject = '✅ 客戶已確認預約 - ' + studentName;
+  
+  var emailBody = '📢 客戶確認通知\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    '以下預約已被家長確認：\n\n' +
+    '  學生姓名：' + studentName + '\n' +
+    '  確認日期：' + confirmedDate + '\n' +
+    '  確認時段：' + confirmedTime + '\n\n' +
+    '確認時間：' + new Date().toLocaleString('zh-HK') + '\n\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    CENTER_NAME + ' 預約系統';
+  
+  try {
+    MailApp.sendEmail(ADMIN_EMAIL, emailSubject, emailBody);
+    Logger.log('客戶確認通知已發送至管理員');
+  } catch (error) {
+    Logger.log('發送管理員通知失敗：' + error.toString());
+  }
+}
+
+// ========================================
+// 發送確認郵件（帶確認連結）
 // ========================================
 function sendConfirmationEmail(email, studentName, grade, subject, date, time, bookingId) {
-  var emailSubject = '✅ 試堂預約確認 - ' + CENTER_NAME;
+  var emailSubject = '📅 請確認您的試堂預約 - ' + CENTER_NAME;
   
-  // 生成管理預約的連結
+  // 生成確認預約的連結
+  var confirmUrl = 'https://trial-booking-system.pages.dev/confirm-booking.html?' +
+    'id=' + encodeURIComponent(bookingId || '') +
+    '&name=' + encodeURIComponent(studentName) +
+    '&date=' + encodeURIComponent(date) +
+    '&time=' + encodeURIComponent(time) +
+    '&subject=' + encodeURIComponent(subject);
+  
+  // 生成管理預約的連結（更改/取消）
   var manageUrl = 'https://trial-booking-system.pages.dev/manage.html?' +
     'id=' + encodeURIComponent(bookingId || '') +
     '&name=' + encodeURIComponent(studentName) +
@@ -257,7 +324,7 @@ function sendConfirmationEmail(email, studentName, grade, subject, date, time, b
   
   var emailBody = '親愛的家長您好：\n\n' +
     '感謝您為 ' + studentName + ' 同學預約試堂！\n\n' +
-    '您的預約已確認，詳情如下：\n' +
+    '我們已為您安排以下時間，請確認：\n' +
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
     '  學生姓名：' + studentName + '\n' +
     '  年級：' + grade + '\n' +
@@ -265,13 +332,14 @@ function sendConfirmationEmail(email, studentName, grade, subject, date, time, b
     '  預約日期：' + date + '\n' +
     '  預約時段：' + time + '\n' +
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-    '請於預約時間前10分鐘到達：\n' +
-    '📍 地址：' + CENTER_ADDRESS + '\n' +
-    '📞 電話：' + CENTER_PHONE + '\n\n' +
+    '✅ 【請點擊以下連結確認預約】\n' +
+    confirmUrl + '\n\n' +
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
-    '📝 如需更改或取消預約，請點擊以下連結：\n' +
-    manageUrl + '\n' +
+    '📍 上課地點：' + CENTER_ADDRESS + '\n' +
+    '📞 聯絡電話：' + CENTER_PHONE + '\n' +
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    '📝 如需更改或取消預約，請點擊：\n' +
+    manageUrl + '\n\n' +
     '祝您生活愉快！\n\n' +
     CENTER_NAME;
   

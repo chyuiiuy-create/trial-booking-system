@@ -411,6 +411,14 @@
                         <span class="stat-number" id="pending-count">0</span>
                         <span class="stat-label">待處理</span>
                     </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+                        <span class="stat-number" id="waiting-count">0</span>
+                        <span class="stat-label">待客戶確認</span>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                        <span class="stat-number" id="confirmed-count">0</span>
+                        <span class="stat-label">已確認</span>
+                    </div>
                 </div>
                 
                 <!-- 提交列表 -->
@@ -541,12 +549,16 @@
             const cancels = allSubmissions.filter(s => s.type === 'cancel').length;
             const changes = allSubmissions.filter(s => s.type === 'change').length;
             const pending = allSubmissions.filter(s => s.status === '待處理').length;
+            const waiting = allSubmissions.filter(s => s.status === '待客戶確認').length;
+            const confirmed = allSubmissions.filter(s => s.status === '已確認').length;
             
             document.getElementById('total-count').textContent = total;
             document.getElementById('booking-count').textContent = bookings;
             document.getElementById('cancel-count').textContent = cancels;
             document.getElementById('change-count').textContent = changes;
             document.getElementById('pending-count').textContent = pending;
+            document.getElementById('waiting-count').textContent = waiting;
+            document.getElementById('confirmed-count').textContent = confirmed;
         }
         
         function filterSubmissions(filter) {
@@ -595,10 +607,13 @@
                         </div>
                         <div class="submission-actions">
                             ${sub.status === '待處理' ? `
-                                <button class="btn btn-success btn-sm" onclick="sendConfirm(${realIndex})">✓</button>
-                                <button class="btn btn-warning btn-sm" onclick="sendReject(${realIndex})">✗</button>
+                                <button class="btn btn-success btn-sm" onclick="showDetail(${realIndex})">處理</button>
+                            ` : sub.status === '待客戶確認' ? `
+                                <span style="font-size: 11px; color: #f39c12; font-weight: 600;">⏳ 待客戶確認</span>
+                            ` : sub.status === '已確認' ? `
+                                <span style="font-size: 11px; color: #27ae60; font-weight: 600;">✅ 已確認</span>
                             ` : `
-                                <span style="font-size: 11px; color: ${sub.status === '已確認' ? '#27ae60' : '#e74c3c'};">${sub.status}</span>
+                                <span style="font-size: 11px; color: #e74c3c; font-weight: 600;">❌ ${sub.status}</span>
                             `}
                             <button class="btn btn-danger btn-sm" onclick="deleteSubmission(${realIndex})">🗑️</button>
                         </div>
@@ -690,7 +705,11 @@
             detailsHtml += `
                 <div class="detail-row">
                     <span class="detail-label">狀態</span>
-                    <span class="detail-value" style="color: ${sub.status === '已確認' ? '#27ae60' : sub.status === '已拒絕' ? '#e74c3c' : '#f39c12'};">${sub.status || '待處理'}</span>
+                    <span class="detail-value" style="color: ${
+                        sub.status === '已確認' ? '#27ae60' : 
+                        sub.status === '待客戶確認' ? '#f39c12' : 
+                        sub.status === '已拒絕' ? '#e74c3c' : '#3498db'
+                    }; font-weight: 600;">${sub.status || '待處理'}</span>
                 </div>
             `;
             
@@ -762,7 +781,7 @@
             const confirmedTime = parts.slice(1).join(' ') || '';
             
             // 更新本地狀態
-            allSubmissions[index].status = '已確認';
+            allSubmissions[index].status = '待客戶確認';
             allSubmissions[index].confirmedSlot = slot;
             localStorage.setItem('submissions', JSON.stringify(allSubmissions));
             
@@ -783,7 +802,7 @@
                 console.error('發送失敗：', err);
             });
             
-            alert('✅ 已確認預約\n\n確認時段：' + slot + '\n\n確認郵件將發送給家長（如有提供電郵）');
+            alert('📧 確認郵件已發送！\n\n確認時段：' + slot + '\n\n狀態已更新為「待客戶確認」\n家長確認後狀態將變為「已確認」');
             closeModal();
             loadSubmissions();
         }

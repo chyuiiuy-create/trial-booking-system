@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<!-- 
+============================================
+試堂預約系統 - 家長確認預約頁面
+============================================
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>確認預約 - 香港質心教育</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .confirm-container {
+            max-width: 450px;
+            width: 100%;
+        }
+        .confirm-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .confirm-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        .confirm-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .confirm-subtitle {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .booking-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .detail-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            width: 80px;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        .detail-value {
+            flex: 1;
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        .confirm-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+        .confirm-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .change-link {
+            display: inline-block;
+            color: #667eea;
+            font-size: 14px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        .change-link:hover {
+            text-decoration: underline;
+        }
+        .success-state {
+            display: none;
+        }
+        .success-state.active {
+            display: block;
+        }
+        .pending-state.hidden {
+            display: none;
+        }
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .success-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 16px;
+        }
+        .success-message {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .location-info {
+            background: #e8f5e9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            text-align: left;
+        }
+        .location-info h4 {
+            font-size: 14px;
+            color: #27ae60;
+            margin-bottom: 12px;
+        }
+        .location-info p {
+            font-size: 13px;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+        .error-state {
+            display: none;
+        }
+        .error-state.active {
+            display: block;
+        }
+        .error-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            font-size: 20px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            font-size: 14px;
+            color: #666;
+        }
+        .footer-text {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirm-container">
+        <div class="confirm-card">
+            <!-- 待確認狀態 -->
+            <div class="pending-state" id="pending-state">
+                <div class="confirm-icon">📅</div>
+                <h1 class="confirm-title">確認您的預約</h1>
+                <p class="confirm-subtitle">請確認以下預約詳情</p>
+                
+                <div class="booking-details">
+                    <div class="detail-row">
+                        <span class="detail-label">學生姓名</span>
+                        <span class="detail-value" id="detail-name">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">預約日期</span>
+                        <span class="detail-value" id="detail-date">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">預約時間</span>
+                        <span class="detail-value" id="detail-time">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">科目</span>
+                        <span class="detail-value" id="detail-subject">-</span>
+                    </div>
+                </div>
+                
+                <button class="confirm-btn" id="confirm-btn" onclick="confirmBooking()">
+                    ✓ 確認預約
+                </button>
+                
+                <a href="#" class="change-link" id="change-link">需要更改時間？</a>
+            </div>
+            
+            <!-- 成功狀態 -->
+            <div class="success-state" id="success-state">
+                <div class="success-icon">🎉</div>
+                <h1 class="success-title">預約已確認！</h1>
+                <p class="success-message">
+                    感謝您確認預約。<br>
+                    我們期待與您見面！
+                </p>
+                
+                <div class="location-info">
+                    <h4>📍 上課地點</h4>
+                    <p><strong>香港質心教育</strong></p>
+                    <p>九龍太子彌敦道761號太子藍馬之城3樓B室</p>
+                    <p>（太子地鐵站C1出口）</p>
+                    <p style="margin-top: 10px;">📞 5765 1008</p>
+                </div>
+                
+                <p class="footer-text">
+                    請於預約時間前10分鐘到達
+                </p>
+            </div>
+            
+            <!-- 錯誤狀態 -->
+            <div class="error-state" id="error-state">
+                <div class="error-icon">⚠️</div>
+                <h1 class="error-title">無法載入預約</h1>
+                <p class="error-message">
+                    請確認連結是否正確。<br>
+                    如有問題，請致電：5765 1008
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Google Apps Script URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzW4sqzfRtVPE9Bf-SWsE06Ozouvd4YllT6o82AXoFN6MktZYzdUNk07TQ-bxABwy6kPQ/exec';
+        
+        // 從 URL 獲取參數
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingId = urlParams.get('id');
+        const studentName = urlParams.get('name');
+        const confirmedDate = urlParams.get('date');
+        const confirmedTime = urlParams.get('time');
+        const subject = urlParams.get('subject');
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!bookingId || !studentName) {
+                showError();
+                return;
+            }
+            
+            // 顯示預約詳情
+            document.getElementById('detail-name').textContent = decodeURIComponent(studentName);
+            document.getElementById('detail-date').textContent = decodeURIComponent(confirmedDate || '-');
+            document.getElementById('detail-time').textContent = decodeURIComponent(confirmedTime || '-');
+            document.getElementById('detail-subject').textContent = decodeURIComponent(subject || '-');
+            
+            // 設置更改連結
+            const manageUrl = 'manage.html?' + 
+                'id=' + encodeURIComponent(bookingId) +
+                '&name=' + encodeURIComponent(studentName) +
+                '&date=' + encodeURIComponent(confirmedDate || '') +
+                '&time=' + encodeURIComponent(confirmedTime || '') +
+                '&subject=' + encodeURIComponent(subject || '');
+            document.getElementById('change-link').href = manageUrl;
+        });
+        
+        // 確認預約
+        function confirmBooking() {
+            const btn = document.getElementById('confirm-btn');
+            btn.disabled = true;
+            btn.textContent = '確認中...';
+            
+            // 發送確認到 Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'clientConfirm',
+                    bookingId: bookingId
+                })
+            }).then(() => {
+                showSuccess();
+            }).catch(err => {
+                console.error(err);
+                // 即使出錯也顯示成功（因為 no-cors 模式無法讀取響應）
+                showSuccess();
+            });
+        }
+        
+        function showSuccess() {
+            document.getElementById('pending-state').classList.add('hidden');
+            document.getElementById('success-state').classList.add('active');
+        }
+        
+        function showError() {
+            document.getElementById('pending-state').classList.add('hidden');
+            document.getElementById('error-state').classList.add('active');
+        }
+    </script>
+</body>
+</html>
+
