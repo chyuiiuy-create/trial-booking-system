@@ -515,14 +515,26 @@
                 return;
             }
             
-            // 組合日期和時間
+            // 計算將要添加的時段數量
+            let newCombos = [];
             selectedDates.forEach(date => {
                 selectedTimes.forEach(time => {
                     const combo = `${date} ${time}`;
                     if (!selectedList.includes(combo)) {
-                        selectedList.push(combo);
+                        newCombos.push(combo);
                     }
                 });
+            });
+            
+            // 檢查是否超過10個時段
+            if (selectedList.length + newCombos.length > 10) {
+                alert('⚠️ 預約時段不能超過10個！\n\n目前已選擇 ' + selectedList.length + ' 個，\n還可以添加 ' + (10 - selectedList.length) + ' 個。');
+                return;
+            }
+            
+            // 添加新組合
+            newCombos.forEach(combo => {
+                selectedList.push(combo);
             });
             
             // 清空當前選擇

@@ -657,12 +657,34 @@
             `;
             
             if (sub.status === '待處理') {
+                // 解析提交者選擇的日期時段
+                const preferredSlots = (sub.selectedDates || sub.preferredDate || '').split('; ').filter(s => s.trim());
+                
+                let slotsOptions = '';
+                if (preferredSlots.length > 0) {
+                    slotsOptions = preferredSlots.map(slot => 
+                        `<option value="${slot}">${slot}</option>`
+                    ).join('');
+                } else {
+                    slotsOptions = '<option value="">無可選時段</option>';
+                }
+                
                 detailsHtml += `
                     <div class="action-box">
                         <div class="action-box-title">✏️ 處理此申請</div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; color: #666; margin-bottom: 6px;">
+                                選擇確認的日期時段：
+                            </label>
+                            <select id="confirm-slot" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                                ${slotsOptions}
+                            </select>
+                        </div>
+                        
                         <div class="action-buttons">
-                            <button class="btn btn-success" onclick="sendConfirm(${index}); closeModal();">✓ 確認</button>
-                            <button class="btn btn-danger" onclick="sendReject(${index}); closeModal();">✗ 拒絕</button>
+                            <button class="btn btn-success" onclick="sendConfirmWithSlot(${index});">✓ 確認預約</button>
+                            <button class="btn btn-danger" onclick="sendRejectWithReason(${index});">✗ 拒絕</button>
                             <button class="btn btn-warning" onclick="deleteSubmission(${index}); closeModal();">🗑️ 刪除</button>
                         </div>
                     </div>
@@ -677,6 +699,9 @@
             document.getElementById('detail-modal').classList.remove('active');
         }
         
+        // Google Apps Script URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzW4sqzfRtVPE9Bf-SWsE06Ozouvd4YllT6o82AXoFN6MktZYzdUNk07TQ-bxABwy6kPQ/exec';
+        
         function sendConfirm(index) {
             allSubmissions[index].status = '已確認';
             localStorage.setItem('submissions', JSON.stringify(allSubmissions));
@@ -684,11 +709,81 @@
             loadSubmissions();
         }
         
-        function sendReject(index) {
-            allSubmissions[index].status = '已拒絕';
+        function sendConfirmWithSlot(index) {
+            const slot = document.getElementById('confirm-slot').value;
+            if (!slot) {
+                alert('請選擇一個確認的日期時段');
+                return;
+            }
+            
+            const sub = allSubmissions[index];
+            
+            // 解析日期和時間
+            const parts = slot.split(' ');
+            const confirmedDate = parts[0] || slot;
+            const confirmedTime = parts.slice(1).join(' ') || '';
+            
+            // 更新本地狀態
+            allSubmissions[index].status = '已確認';
+            allSubmissions[index].confirmedSlot = slot;
             localStorage.setItem('submissions', JSON.stringify(allSubmissions));
-            alert('❌ 已標記為拒絕');
+            
+            // 發送到 Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'confirm',
+                    bookingId: sub.id,
+                    confirmedDate: confirmedDate,
+                    confirmedTime: confirmedTime
+                })
+            }).then(() => {
+                console.log('✅ 確認信息已發送到 Google Sheets');
+            }).catch(err => {
+                console.error('發送失敗：', err);
+            });
+            
+            alert('✅ 已確認預約\n\n確認時段：' + slot + '\n\n確認郵件將發送給家長（如有提供電郵）');
+            closeModal();
             loadSubmissions();
+        }
+        
+        function sendRejectWithReason(index) {
+            const reason = prompt('請輸入拒絕原因（可選）：', '時間安排問題');
+            if (reason === null) return; // 用戶取消
+            
+            const sub = allSubmissions[index];
+            
+            // 更新本地狀態
+            allSubmissions[index].status = '已拒絕';
+            allSubmissions[index].rejectReason = reason;
+            localStorage.setItem('submissions', JSON.stringify(allSubmissions));
+            
+            // 發送到 Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'decline',
+                    bookingId: sub.id,
+                    reason: reason
+                })
+            }).then(() => {
+                console.log('❌ 拒絕信息已發送到 Google Sheets');
+            }).catch(err => {
+                console.error('發送失敗：', err);
+            });
+            
+            alert('❌ 已拒絕預約\n\n拒絕通知將發送給家長（如有提供電郵）');
+            closeModal();
+            loadSubmissions();
+        }
+        
+        function sendReject(index) {
+            sendRejectWithReason(index);
         }
         
         function deleteSubmission(index) {

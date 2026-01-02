@@ -29,6 +29,7 @@ const CENTER_NAME = '香港質心教育';
 const CENTER_ADDRESS = '九龍太子彌敦道761號太子藍馬之城3樓B室（太子地鐵站C1出口）';
 const CENTER_PHONE = '5765 1008';
 const CENTER_EMAIL = 'info@hkquality.edu.hk'; // 發件人顯示的名稱
+const ADMIN_EMAIL = 'zhangyu01@eduzhixin.com'; // 管理員電郵地址（接收新預約通知）
 
 // ========================================
 // 處理POST請求（接收預約數據）
@@ -107,12 +108,54 @@ function saveNewBooking(data) {
     ''                          // 備註
   ]);
   
+  // 發送新預約通知給管理員
+  sendAdminNotification(data);
+  
   return ContentService
     .createTextOutput(JSON.stringify({
       'status': 'success',
       'message': '預約已成功記錄'
     }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ========================================
+// 發送新預約通知給管理員
+// ========================================
+function sendAdminNotification(data) {
+  var emailSubject = '【新預約】' + data.studentName + ' - ' + data.subject;
+  
+  var typeText = '';
+  if (data.type === 'cancel') {
+    typeText = '❌ 取消預約申請';
+  } else if (data.type === 'change') {
+    typeText = '🔄 更改預約申請';
+  } else {
+    typeText = '📝 新試堂預約';
+  }
+  
+  var emailBody = typeText + '\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    '📋 預約詳情：\n\n' +
+    '  預約ID：' + (data.id || '無') + '\n' +
+    '  提交時間：' + (data.timestamp || '無') + '\n' +
+    '  學生姓名：' + (data.studentName || '無') + '\n' +
+    '  年級：' + (data.grade || '無') + '\n' +
+    '  科目：' + (data.subject || '無') + '\n' +
+    '  聯絡電話：' + (data.phone || '無') + '\n' +
+    '  電郵地址：' + (data.email || '未提供') + '\n' +
+    '  希望日期/時段：' + (data.preferredDate || '無') + '\n\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    '請登入管理後台處理此預約：\n' +
+    'https://trial-booking-system.pages.dev/admin.html\n\n' +
+    CENTER_NAME + ' 預約系統';
+  
+  try {
+    MailApp.sendEmail(ADMIN_EMAIL, emailSubject, emailBody);
+    Logger.log('新預約通知已發送至管理員：' + ADMIN_EMAIL);
+  } catch (error) {
+    Logger.log('發送管理員通知失敗：' + error.toString());
+  }
 }
 
 // ========================================
