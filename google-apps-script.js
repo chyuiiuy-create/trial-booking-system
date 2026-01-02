@@ -48,6 +48,8 @@ function doPost(e) {
       return clientConfirmBooking(data);
     } else if (data.action === 'updateBooking') {
       return updateBookingStatus(data);
+    } else if (data.action === 'delete') {
+      return deleteBooking(data);
     } else {
       return saveNewBooking(data);
     }
@@ -241,6 +243,33 @@ function declineBooking(data) {
     .createTextOutput(JSON.stringify({
       'status': 'success',
       'message': '預約已拒絕，通知已發送'
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ========================================
+// 刪除預約記錄
+// ========================================
+function deleteBooking(data) {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getActiveSheet();
+  var dataRange = sheet.getDataRange();
+  var values = dataRange.getValues();
+  
+  // 查找並刪除對應的預約
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][0] === data.bookingId) {
+      // 刪除該行
+      sheet.deleteRow(i + 1);
+      Logger.log('已刪除預約：' + data.bookingId);
+      break;
+    }
+  }
+  
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      'status': 'success',
+      'message': '預約已刪除'
     }))
     .setMimeType(ContentService.MimeType.JSON);
 }

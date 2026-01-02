@@ -920,9 +920,32 @@
         }
         
         function deleteSubmission(index) {
-            if (!confirm('確定要刪除這條記錄嗎？')) return;
+            if (!confirm('確定要刪除這條記錄嗎？\n\n此操作將同時從 Google Sheets 中刪除。')) return;
+            
+            const sub = allSubmissions[index];
+            const bookingId = sub.id;
+            
+            // 從 Google Sheets 刪除
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'delete',
+                    bookingId: bookingId
+                })
+            }).then(() => {
+                console.log('✅ 已從 Google Sheets 刪除：' + bookingId);
+            }).catch(err => {
+                console.error('刪除失敗：', err);
+            });
+            
+            // 從本地列表移除
             allSubmissions.splice(index, 1);
             localStorage.setItem('submissions', JSON.stringify(allSubmissions));
+            
+            alert('✅ 記錄已刪除');
+            closeModal();
             loadSubmissions();
         }
         
