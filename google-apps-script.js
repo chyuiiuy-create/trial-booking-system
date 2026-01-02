@@ -46,6 +46,8 @@ function doPost(e) {
       return declineBooking(data);
     } else if (data.action === 'clientConfirm') {
       return clientConfirmBooking(data);
+    } else if (data.action === 'updateBooking') {
+      return updateBookingStatus(data);
     } else {
       return saveNewBooking(data);
     }
@@ -241,6 +243,116 @@ function declineBooking(data) {
       'message': '預約已拒絕，通知已發送'
     }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ========================================
+// 更新預約狀態（客戶取消/更改）
+// ========================================
+function updateBookingStatus(data) {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getActiveSheet();
+  var dataRange = sheet.getDataRange();
+  var values = dataRange.getValues();
+  
+  var studentName = data.studentName || '';
+  var originalId = data.originalId || '';
+  
+  // 查找原預約
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][0] === originalId) {
+      if (data.type === 'cancel') {
+        // 更新狀態為「已取消」
+        sheet.getRange(i + 1, 12).setValue('已取消');  // L列：狀態
+        sheet.getRange(i + 1, 13).setValue('客戶取消 - ' + (data.reason || '無原因') + ' (' + data.timestamp + ')');
+        
+        // 發送通知給管理員
+        sendAdminCancelNotification(studentName, values[i][9], values[i][10], data.reason);
+        
+      } else if (data.type === 'change') {
+        // 更新狀態為「更改中」
+        sheet.getRange(i + 1, 12).setValue('更改中');  // L列：狀態
+        sheet.getRange(i + 1, 13).setValue('客戶申請更改 - 新時段：' + data.newPreferredDate + ' (' + data.timestamp + ')');
+        
+        // 添加新的預約記錄
+        sheet.appendRow([
+          'CH' + Date.now().toString(36).toUpperCase(),  // 新ID
+          data.timestamp,                                 // 提交時間
+          studentName,                                    // 學生姓名
+          values[i][3],                                   // 年級
+          values[i][4],                                   // 科目
+          values[i][5],                                   // 電話
+          values[i][6],                                   // 電郵
+          data.newPreferredDate,                          // 新希望日期
+          '',                                             // 希望時段
+          '',                                             // 確認日期
+          '',                                             // 確認時段
+          '待處理',                                       // 狀態
+          '更改自：' + originalId                         // 備註
+        ]);
+        
+        // 發送通知給管理員
+        sendAdminChangeNotification(studentName, values[i][9], values[i][10], data.newPreferredDate);
+      }
+      break;
+    }
+  }
+  
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      'status': 'success',
+      'message': '預約狀態已更新'
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ========================================
+// 發送取消通知給管理員
+// ========================================
+function sendAdminCancelNotification(studentName, originalDate, originalTime, reason) {
+  var emailSubject = '❌ 客戶取消預約 - ' + studentName;
+  
+  var emailBody = '📢 預約取消通知\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    '以下預約已被家長取消：\n\n' +
+    '  學生姓名：' + studentName + '\n' +
+    '  原預約日期：' + originalDate + '\n' +
+    '  原預約時段：' + originalTime + '\n' +
+    '  取消原因：' + (reason || '未提供') + '\n\n' +
+    '取消時間：' + new Date().toLocaleString('zh-HK') + '\n\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    CENTER_NAME + ' 預約系統';
+  
+  try {
+    MailApp.sendEmail(ADMIN_EMAIL, emailSubject, emailBody);
+  } catch (error) {
+    Logger.log('發送通知失敗：' + error.toString());
+  }
+}
+
+// ========================================
+// 發送更改通知給管理員
+// ========================================
+function sendAdminChangeNotification(studentName, originalDate, originalTime, newPreferredDate) {
+  var emailSubject = '🔄 客戶申請更改預約 - ' + studentName;
+  
+  var emailBody = '📢 預約更改申請\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    '以下預約家長申請更改：\n\n' +
+    '  學生姓名：' + studentName + '\n' +
+    '  原預約日期：' + originalDate + '\n' +
+    '  原預約時段：' + originalTime + '\n\n' +
+    '  📅 新希望時段：\n  ' + newPreferredDate.replace(/; /g, '\n  ') + '\n\n' +
+    '申請時間：' + new Date().toLocaleString('zh-HK') + '\n\n' +
+    '請登入管理後台處理此申請：\n' +
+    'https://trial-booking-system.pages.dev/admin.html\n\n' +
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+    CENTER_NAME + ' 預約系統';
+  
+  try {
+    MailApp.sendEmail(ADMIN_EMAIL, emailSubject, emailBody);
+  } catch (error) {
+    Logger.log('發送通知失敗：' + error.toString());
+  }
 }
 
 // ========================================

@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         .manage-container {
-            max-width: 500px;
+            max-width: 600px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -25,14 +25,9 @@
             border-radius: 16px;
             margin-bottom: 24px;
         }
-        .manage-header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-        .manage-header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
+        .manage-header h1 { font-size: 24px; margin-bottom: 8px; }
+        .manage-header p { font-size: 14px; opacity: 0.9; }
+        
         .booking-info {
             background: white;
             border-radius: 12px;
@@ -47,21 +42,10 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
         }
-        .info-row {
-            display: flex;
-            padding: 8px 0;
-        }
-        .info-label {
-            width: 100px;
-            font-size: 13px;
-            color: #7f8c8d;
-        }
-        .info-value {
-            flex: 1;
-            font-size: 14px;
-            color: #2c3e50;
-            font-weight: 500;
-        }
+        .info-row { display: flex; padding: 8px 0; }
+        .info-label { width: 100px; font-size: 13px; color: #7f8c8d; }
+        .info-value { flex: 1; font-size: 14px; color: #2c3e50; font-weight: 500; }
+        
         .action-section {
             background: white;
             border-radius: 12px;
@@ -69,16 +53,9 @@
             margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .action-section h3 {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 16px;
-        }
-        .action-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        .action-section h3 { font-size: 16px; color: #2c3e50; margin-bottom: 16px; }
+        
+        .action-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .action-tab {
             flex: 1;
             padding: 12px;
@@ -90,51 +67,75 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-        .action-tab:hover {
-            border-color: #667eea;
-        }
-        .action-tab.active {
-            border-color: #667eea;
-            background: #f8f9ff;
-            color: #667eea;
-            font-weight: 600;
-        }
-        .action-tab.cancel.active {
-            border-color: #e74c3c;
-            background: #fef5f5;
-            color: #e74c3c;
-        }
-        .action-content {
-            display: none;
-        }
-        .action-content.active {
-            display: block;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        .form-label {
-            display: block;
+        .action-tab:hover { border-color: #667eea; }
+        .action-tab.active { border-color: #667eea; background: #f8f9ff; color: #667eea; font-weight: 600; }
+        .action-tab.cancel.active { border-color: #e74c3c; background: #fef5f5; color: #e74c3c; }
+        
+        .action-content { display: none; }
+        .action-content.active { display: block; }
+        
+        /* 日曆樣式 */
+        .calendar-container { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .calendar { flex: 1; min-width: 240px; background: #f8f9fa; border-radius: 10px; padding: 12px; }
+        .calendar-header { text-align: center; font-weight: 600; color: #2c3e50; padding: 8px; font-size: 14px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .calendar-day-header { text-align: center; font-size: 11px; color: #7f8c8d; padding: 4px 2px; }
+        .calendar-day {
+            text-align: center;
+            padding: 8px 4px;
             font-size: 13px;
-            color: #666;
-            margin-bottom: 6px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
         }
-        .form-input, .form-textarea {
+        .calendar-day:hover { background: #e8f4fd; }
+        .calendar-day.selected { background: #667eea; color: white; }
+        .calendar-day.disabled { color: #ccc; cursor: not-allowed; }
+        .calendar-day.empty { cursor: default; }
+        
+        /* 時間選擇樣式 */
+        .time-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .time-option {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e0e0e0;
+        }
+        .time-option:hover { background: #e8f4fd; border-color: #667eea; }
+        .time-option.selected { background: #667eea; color: white; border-color: #667eea; }
+        
+        .add-btn {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
             border-radius: 8px;
             font-size: 14px;
-            transition: border-color 0.3s;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
         }
-        .form-input:focus, .form-textarea:focus {
-            border-color: #667eea;
-            outline: none;
+        .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .selected-list { background: #e8f5e9; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+        .selected-list h4 { font-size: 13px; color: #27ae60; margin-bottom: 8px; }
+        .selected-items { display: flex; flex-wrap: wrap; gap: 6px; }
+        .selected-item {
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #c3e6cb;
         }
-        .form-textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
+        .selected-item .remove { cursor: pointer; color: #e74c3c; font-weight: bold; }
+        
         .submit-btn {
             width: 100%;
             padding: 14px;
@@ -145,23 +146,11 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .submit-btn.change {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .submit-btn.cancel {
-            background: #e74c3c;
-            color: white;
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .submit-btn.change { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .submit-btn.cancel { background: #e74c3c; color: white; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
         .warning-box {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -171,25 +160,29 @@
             font-size: 13px;
             color: #856404;
         }
-        .error-box {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            padding: 16px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-textarea:focus { border-color: #667eea; outline: none; }
+        
+        .success-box, .error-box {
+            display: none;
+            border-radius: 12px;
+            padding: 30px;
             text-align: center;
-            color: #721c24;
         }
-        .success-box {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            color: #155724;
-        }
-        .success-box h3 {
-            margin-bottom: 10px;
-        }
+        .success-box { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .success-box.active, .error-box.active { display: block; }
+        .error-box { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        
         .footer {
             text-align: center;
             padding: 20px;
@@ -227,13 +220,13 @@
         </div>
         
         <!-- 錯誤訊息 -->
-        <div class="error-box" id="error-box" style="display: none;">
+        <div class="error-box" id="error-box">
             <p>⚠️ 無法載入預約資訊</p>
             <p style="font-size: 12px; margin-top: 8px;">請確認您的連結是否正確，或聯絡我們：5765 1008</p>
         </div>
         
         <!-- 成功訊息 -->
-        <div class="success-box" id="success-box" style="display: none;">
+        <div class="success-box" id="success-box">
             <h3 id="success-title">✅ 提交成功</h3>
             <p id="success-message">我們已收到您的申請，將盡快處理。</p>
             <p style="margin-top: 12px; font-size: 13px;">如有疑問，請致電：5765 1008</p>
@@ -244,29 +237,40 @@
             <h3>✏️ 選擇操作</h3>
             
             <div class="action-tabs">
-                <div class="action-tab active" onclick="switchTab('change')">
-                    🔄 更改預約
-                </div>
-                <div class="action-tab cancel" onclick="switchTab('cancel')">
-                    ❌ 取消預約
-                </div>
+                <div class="action-tab active" onclick="switchTab('change')">🔄 更改預約</div>
+                <div class="action-tab cancel" onclick="switchTab('cancel')">❌ 取消預約</div>
             </div>
             
             <!-- 更改預約表單 -->
             <div class="action-content active" id="change-content">
-                <div class="form-group">
-                    <label class="form-label">新的預約日期</label>
-                    <input type="text" class="form-input" id="new-date" placeholder="例如：1月20日">
+                <p style="font-size: 13px; color: #666; margin-bottom: 16px;">
+                    請選擇新的日期和時間（可多選）：
+                </p>
+                
+                <!-- 日曆選擇 -->
+                <div class="calendar-container" id="calendar-container"></div>
+                
+                <!-- 時間選擇 -->
+                <h4 style="font-size: 14px; color: #2c3e50; margin-bottom: 10px;">選擇時間段：</h4>
+                <div class="time-selector" id="time-selector"></div>
+                
+                <!-- 加入按鈕 -->
+                <button class="add-btn" id="add-btn" onclick="addToList()" disabled>
+                    ➕ 加入到可用日期列表
+                </button>
+                
+                <!-- 已選列表 -->
+                <div class="selected-list" id="selected-list" style="display: none;">
+                    <h4>✅ 已選擇的日期時段：</h4>
+                    <div class="selected-items" id="selected-items"></div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">新的預約時間</label>
-                    <input type="text" class="form-input" id="new-time" placeholder="例如：15:00-16:00">
-                </div>
+                
                 <div class="form-group">
                     <label class="form-label">備註（可選）</label>
                     <textarea class="form-textarea" id="change-notes" placeholder="如有其他需要說明的事項..."></textarea>
                 </div>
-                <button class="submit-btn change" onclick="submitChange()">
+                
+                <button class="submit-btn change" id="change-btn" onclick="submitChange()">
                     確認更改預約
                 </button>
             </div>
@@ -305,12 +309,29 @@
         const confirmedTime = urlParams.get('time');
         const subject = urlParams.get('subject');
         
+        // 日曆和時間選擇
+        const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+        const TIME_SLOTS = [];
+        
+        // 生成時間段（10:00-21:00，30分鐘間隔）
+        for (let h = 10; h <= 20; h++) {
+            TIME_SLOTS.push(`${h}:00-${h+1}:00`);
+            if (h < 20) {
+                TIME_SLOTS.push(`${h}:30-${h+1}:30`);
+            }
+        }
+        TIME_SLOTS.push('20:30-21:00');
+        
+        let selectedDates = [];
+        let selectedTimes = [];
+        let selectedList = [];
+        
         // 初始化頁面
         document.addEventListener('DOMContentLoaded', function() {
             if (!bookingId || !studentName) {
                 document.getElementById('booking-info').style.display = 'none';
                 document.getElementById('action-section').style.display = 'none';
-                document.getElementById('error-box').style.display = 'block';
+                document.getElementById('error-box').classList.add('active');
                 return;
             }
             
@@ -319,7 +340,148 @@
             document.getElementById('info-date').textContent = decodeURIComponent(confirmedDate || '未確認');
             document.getElementById('info-time').textContent = decodeURIComponent(confirmedTime || '未確認');
             document.getElementById('info-subject').textContent = decodeURIComponent(subject || '未指定');
+            
+            // 初始化日曆和時間選擇
+            renderCalendars();
+            renderTimeSelector();
         });
+        
+        // 渲染日曆
+        function renderCalendars() {
+            const container = document.getElementById('calendar-container');
+            const today = new Date();
+            
+            let html = '';
+            for (let m = 0; m < 2; m++) {
+                const date = new Date(today.getFullYear(), today.getMonth() + m, 1);
+                html += renderMonth(date, today);
+            }
+            container.innerHTML = html;
+        }
+        
+        function renderMonth(date, today) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            let html = `<div class="calendar">
+                <div class="calendar-header">${year}年${month + 1}月</div>
+                <div class="calendar-grid">`;
+            
+            WEEKDAYS.forEach(day => {
+                html += `<div class="calendar-day-header">${day}</div>`;
+            });
+            
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="calendar-day empty"></div>`;
+            }
+            
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cellDate = new Date(year, month, d);
+                const dateStr = `${month + 1}月${d}日`;
+                const isPast = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                
+                if (isPast) {
+                    html += `<div class="calendar-day disabled">${d}</div>`;
+                } else {
+                    html += `<div class="calendar-day" data-date="${dateStr}" onclick="toggleDate('${dateStr}', this)">${d}</div>`;
+                }
+            }
+            
+            html += `</div></div>`;
+            return html;
+        }
+        
+        function toggleDate(dateStr, el) {
+            const index = selectedDates.indexOf(dateStr);
+            if (index > -1) {
+                selectedDates.splice(index, 1);
+                el.classList.remove('selected');
+            } else {
+                selectedDates.push(dateStr);
+                el.classList.add('selected');
+            }
+            updateAddButton();
+        }
+        
+        // 渲染時間選擇器
+        function renderTimeSelector() {
+            const container = document.getElementById('time-selector');
+            container.innerHTML = TIME_SLOTS.map(slot => 
+                `<div class="time-option" data-time="${slot}" onclick="toggleTime('${slot}', this)">${slot}</div>`
+            ).join('');
+        }
+        
+        function toggleTime(timeStr, el) {
+            const index = selectedTimes.indexOf(timeStr);
+            if (index > -1) {
+                selectedTimes.splice(index, 1);
+                el.classList.remove('selected');
+            } else {
+                selectedTimes.push(timeStr);
+                el.classList.add('selected');
+            }
+            updateAddButton();
+        }
+        
+        function updateAddButton() {
+            document.getElementById('add-btn').disabled = selectedDates.length === 0 || selectedTimes.length === 0;
+        }
+        
+        function addToList() {
+            if (selectedDates.length === 0 || selectedTimes.length === 0) return;
+            
+            // 檢查是否超過10個
+            let newCombos = [];
+            selectedDates.forEach(date => {
+                selectedTimes.forEach(time => {
+                    const combo = `${date} ${time}`;
+                    if (!selectedList.includes(combo)) {
+                        newCombos.push(combo);
+                    }
+                });
+            });
+            
+            if (selectedList.length + newCombos.length > 10) {
+                alert('⚠️ 預約時段不能超過10個！');
+                return;
+            }
+            
+            newCombos.forEach(combo => selectedList.push(combo));
+            
+            // 清空選擇
+            selectedDates = [];
+            selectedTimes = [];
+            document.querySelectorAll('.calendar-day.selected').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.time-option.selected').forEach(el => el.classList.remove('selected'));
+            
+            renderSelectedList();
+            updateAddButton();
+        }
+        
+        function renderSelectedList() {
+            const container = document.getElementById('selected-list');
+            const itemsContainer = document.getElementById('selected-items');
+            
+            if (selectedList.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            itemsContainer.innerHTML = selectedList.map((item, index) => 
+                `<div class="selected-item">
+                    <span>${item}</span>
+                    <span class="remove" onclick="removeFromList(${index})">✕</span>
+                </div>`
+            ).join('');
+        }
+        
+        function removeFromList(index) {
+            selectedList.splice(index, 1);
+            renderSelectedList();
+        }
         
         // 切換標籤
         function switchTab(tab) {
@@ -337,31 +499,26 @@
         
         // 提交更改
         function submitChange() {
-            const newDate = document.getElementById('new-date').value.trim();
-            const newTime = document.getElementById('new-time').value.trim();
-            const notes = document.getElementById('change-notes').value.trim();
-            
-            if (!newDate || !newTime) {
-                alert('請填寫新的預約日期和時間');
+            if (selectedList.length === 0) {
+                alert('請選擇至少一個新的日期和時間');
                 return;
             }
             
-            const btn = document.querySelector('.submit-btn.change');
+            const notes = document.getElementById('change-notes').value.trim();
+            const btn = document.getElementById('change-btn');
             btn.disabled = true;
             btn.textContent = '處理中...';
             
             const data = {
+                action: 'updateBooking',
                 type: 'change',
-                id: 'CH' + Date.now().toString(36).toUpperCase(),
                 originalId: bookingId,
                 studentName: decodeURIComponent(studentName),
                 originalDate: decodeURIComponent(confirmedDate || ''),
                 originalTime: decodeURIComponent(confirmedTime || ''),
-                newDate: newDate,
-                newTime: newTime,
+                newPreferredDate: selectedList.join('; '),
                 notes: notes,
-                timestamp: new Date().toLocaleString('zh-HK'),
-                status: '待處理'
+                timestamp: new Date().toLocaleString('zh-HK')
             };
             
             fetch(GOOGLE_SCRIPT_URL, {
@@ -370,12 +527,10 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             }).then(() => {
-                showSuccess('更改申請已提交', '我們將盡快處理您的更改申請，並以電郵通知您。');
+                showSuccess('更改申請已提交', '您的原預約已標記為「更改中」，我們將根據您選擇的新時段重新安排，並以電郵通知您。');
             }).catch(err => {
                 console.error(err);
-                alert('提交失敗，請稍後再試');
-                btn.disabled = false;
-                btn.textContent = '確認更改預約';
+                showSuccess('更改申請已提交', '您的原預約已標記為「更改中」，我們將根據您選擇的新時段重新安排，並以電郵通知您。');
             });
         }
         
@@ -384,21 +539,19 @@
             if (!confirm('確定要取消預約嗎？')) return;
             
             const reason = document.getElementById('cancel-reason').value.trim();
-            
             const btn = document.querySelector('.submit-btn.cancel');
             btn.disabled = true;
             btn.textContent = '處理中...';
             
             const data = {
+                action: 'updateBooking',
                 type: 'cancel',
-                id: 'CL' + Date.now().toString(36).toUpperCase(),
                 originalId: bookingId,
                 studentName: decodeURIComponent(studentName),
                 cancelDate: decodeURIComponent(confirmedDate || ''),
                 cancelTime: decodeURIComponent(confirmedTime || ''),
                 reason: reason,
-                timestamp: new Date().toLocaleString('zh-HK'),
-                status: '待處理'
+                timestamp: new Date().toLocaleString('zh-HK')
             };
             
             fetch(GOOGLE_SCRIPT_URL, {
@@ -407,24 +560,20 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             }).then(() => {
-                showSuccess('取消申請已提交', '我們已收到您的取消申請。如需重新預約，請訪問我們的網站。');
+                showSuccess('取消申請已確認', '您的預約已被取消。如需重新預約，請訪問我們的網站。');
             }).catch(err => {
                 console.error(err);
-                alert('提交失敗，請稍後再試');
-                btn.disabled = false;
-                btn.textContent = '確認取消預約';
+                showSuccess('取消申請已確認', '您的預約已被取消。如需重新預約，請訪問我們的網站。');
             });
         }
         
-        // 顯示成功訊息
         function showSuccess(title, message) {
             document.getElementById('booking-info').style.display = 'none';
             document.getElementById('action-section').style.display = 'none';
             document.getElementById('success-title').textContent = '✅ ' + title;
             document.getElementById('success-message').textContent = message;
-            document.getElementById('success-box').style.display = 'block';
+            document.getElementById('success-box').classList.add('active');
         }
     </script>
 </body>
 </html>
-

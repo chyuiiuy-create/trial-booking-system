@@ -423,6 +423,10 @@
                         <span class="stat-number" id="expired-count">0</span>
                         <span class="stat-label">已過期</span>
                     </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                        <span class="stat-number" id="cancelled-count">0</span>
+                        <span class="stat-label">已取消</span>
+                    </div>
                 </div>
                 
                 <!-- 提交列表 -->
@@ -611,6 +615,7 @@
             const waiting = allSubmissions.filter(s => s.status === '待客戶確認').length;
             const confirmed = allSubmissions.filter(s => s.status === '已確認').length;
             const expired = allSubmissions.filter(s => s.status === '已過期').length;
+            const cancelled = allSubmissions.filter(s => s.status === '已取消' || s.status === '更改中').length;
             
             document.getElementById('total-count').textContent = total;
             document.getElementById('booking-count').textContent = bookings;
@@ -620,6 +625,7 @@
             document.getElementById('waiting-count').textContent = waiting;
             document.getElementById('confirmed-count').textContent = confirmed;
             document.getElementById('expired-count').textContent = expired;
+            document.getElementById('cancelled-count').textContent = cancelled;
         }
         
         function filterSubmissions(filter) {
@@ -675,6 +681,10 @@
                                 <span style="font-size: 11px; color: #27ae60; font-weight: 600;">✅ 已確認</span>
                             ` : sub.status === '已過期' ? `
                                 <span style="font-size: 11px; color: #95a5a6; font-weight: 600;">⌛ 已過期</span>
+                            ` : sub.status === '已取消' ? `
+                                <span style="font-size: 11px; color: #9b59b6; font-weight: 600;">🚫 已取消</span>
+                            ` : sub.status === '更改中' ? `
+                                <span style="font-size: 11px; color: #3498db; font-weight: 600;">🔄 更改中</span>
                             ` : `
                                 <span style="font-size: 11px; color: #e74c3c; font-weight: 600;">❌ ${sub.status}</span>
                             `}
@@ -772,7 +782,9 @@
                         sub.status === '已確認' ? '#27ae60' : 
                         sub.status === '待客戶確認' ? '#f39c12' : 
                         sub.status === '已拒絕' ? '#e74c3c' : 
-                        sub.status === '已過期' ? '#95a5a6' : '#3498db'
+                        sub.status === '已過期' ? '#95a5a6' : 
+                        sub.status === '已取消' ? '#9b59b6' : 
+                        sub.status === '更改中' ? '#3498db' : '#3498db'
                     }; font-weight: 600;">${sub.status || '待處理'}</span>
                 </div>
             `;
