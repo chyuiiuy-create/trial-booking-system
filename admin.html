@@ -726,6 +726,12 @@
                         <span class="detail-label">科目</span>
                         <span class="detail-value">${sub.subject || '-'}</span>
                     </div>
+                    ${sub.studentDifficulty ? `
+                    <div class="detail-row" style="background: #fff8e1; border-radius: 8px; padding: 12px; margin: 8px 0;">
+                        <span class="detail-label">📝 學習困難</span>
+                        <span class="detail-value" style="color: #e65100; font-style: italic;">${sub.studentDifficulty}</span>
+                    </div>
+                    ` : ''}
                     ${sub.contactWechat ? `
                     <div class="detail-row">
                         <span class="detail-label">💬 微信</span>
