@@ -13,83 +13,6 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* 微信聯繫框樣式 */
-        .wechat-contact-box {
-            background: linear-gradient(135deg, #07c160 0%, #06ad56 100%);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            color: white;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(7, 193, 96, 0.35);
-            animation: wechatPulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes wechatPulse {
-            0%, 100% { 
-                transform: scale(1);
-                box-shadow: 0 8px 32px rgba(7, 193, 96, 0.35);
-            }
-            50% { 
-                transform: scale(1.01);
-                box-shadow: 0 12px 40px rgba(7, 193, 96, 0.45);
-            }
-        }
-        
-        .wechat-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-        
-        .wechat-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0 0 12px 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .wechat-desc {
-            font-size: 14px;
-            line-height: 1.6;
-            margin: 0 0 16px 0;
-            opacity: 0.95;
-        }
-        
-        .wechat-info {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            display: inline-block;
-        }
-        
-        .wechat-detail {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin: 6px 0;
-        }
-        
-        .wechat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .wechat-value {
-            font-size: 16px;
-            font-weight: 600;
-        }
-        
-        .wechat-id {
-            background: white;
-            color: #07c160;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 15px;
-            letter-spacing: 0.5px;
-        }
-
         /* Logo 樣式 */
         .logo-img {
             width: 60px;
@@ -352,26 +275,6 @@
 <body>
     <div class="container">
         
-        <!-- 微信聯繫提示 - 首要顯示 -->
-        <div class="wechat-contact-box">
-            <div class="wechat-icon">💬</div>
-            <h2 class="wechat-title">立即聯繫我們</h2>
-            <p class="wechat-desc">
-                有關試堂安排、課程詳情溝通及學習計劃，我們將透過微信與您聯繫。<br>
-                請添加我們的微信，以便我們能即時回覆您！
-            </p>
-            <div class="wechat-info">
-                <div class="wechat-detail">
-                    <span class="wechat-label">添加微信：</span>
-                    <span class="wechat-value">質心教育</span>
-                </div>
-                <div class="wechat-detail">
-                    <span class="wechat-label">微信號：</span>
-                    <span class="wechat-value wechat-id">Zhangkaixin0920</span>
-                </div>
-            </div>
-        </div>
-
         <!-- 頁面標題 -->
         <header class="header">
             <div class="logo">
