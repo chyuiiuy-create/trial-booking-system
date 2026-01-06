@@ -874,6 +874,15 @@
                         <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
                             確認郵件已發送，等待客戶回覆確認。如客戶已透過其他方式（電話/WhatsApp/微信）確認，可手動更新狀態。
                         </p>
+                        
+                        <div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e0e0e0;">
+                            <label style="display: block; font-size: 13px; color: #666; margin-bottom: 6px;">
+                                ✏️ 更改確認時段：
+                            </label>
+                            <input type="text" id="change-slot-input" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;" placeholder="例如：1/20 15:00-16:00" value="${sub.confirmedDate || ''} ${sub.confirmedTime || ''}">
+                            <button class="btn btn-primary btn-sm" style="margin-top: 8px;" onclick="changeConfirmedSlot(${index});">📝 更新時段</button>
+                        </div>
+                        
                         <div class="action-buttons">
                             <button class="btn btn-success" onclick="manualConfirm(${index});">✅ 已透過其他方式確認</button>
                             <button class="btn btn-warning" onclick="deleteSubmission(${index}); closeModal();">🗑️ 刪除</button>
@@ -997,6 +1006,51 @@
         
         function sendReject(index) {
             sendRejectWithReason(index);
+        }
+        
+        // 管理員更改確認時段
+        function changeConfirmedSlot(index) {
+            const newSlot = document.getElementById('change-slot-input').value.trim();
+            if (!newSlot) {
+                alert('請輸入新的日期時段');
+                return;
+            }
+            
+            if (!confirm('確定要更改確認時段為「' + newSlot + '」嗎？\n\n將會重新發送確認郵件給客戶。')) return;
+            
+            const sub = allSubmissions[index];
+            
+            // 解析日期和時間
+            const parts = newSlot.split(' ');
+            const confirmedDate = parts[0] || newSlot;
+            const confirmedTime = parts.slice(1).join(' ') || '';
+            
+            // 更新本地狀態
+            allSubmissions[index].confirmedDate = confirmedDate;
+            allSubmissions[index].confirmedTime = confirmedTime;
+            allSubmissions[index].confirmedSlot = newSlot;
+            localStorage.setItem('submissions', JSON.stringify(allSubmissions));
+            
+            // 發送到 Google Sheets（重新發送確認郵件）
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'confirm',
+                    bookingId: sub.id,
+                    confirmedDate: confirmedDate,
+                    confirmedTime: confirmedTime
+                })
+            }).then(() => {
+                console.log('✅ 更新時段已發送到 Google Sheets');
+            }).catch(err => {
+                console.error('發送失敗：', err);
+            });
+            
+            alert('✅ 確認時段已更新為：' + newSlot + '\n\n新的確認郵件已發送給客戶。');
+            closeModal();
+            loadSubmissions();
         }
         
         // 管理員手動確認（透過其他方式確認）
