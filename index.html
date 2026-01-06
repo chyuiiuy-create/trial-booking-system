@@ -378,7 +378,7 @@
                         </div>
                         <div class="contact-field">
                             <span class="contact-icon">📱</span>
-                            <input type="text" id="contact_whatsapp" name="contact_whatsapp" class="form-input" placeholder="WhatsApp 號碼">
+                            <input type="tel" id="contact_whatsapp" name="contact_whatsapp" class="form-input" placeholder="WhatsApp 號碼（8位數字）" maxlength="9">
                         </div>
                         <div class="contact-field">
                             <span class="contact-icon">📞</span>
@@ -514,7 +514,7 @@
         </div>
 
         <footer class="footer">
-            <p>&copy; 2024 香港質心教育 版權所有</p>
+            <p>&copy; 香港質心教育 版權所有</p>
         </footer>
 
     </div>
@@ -745,9 +745,22 @@
         
         // 電話格式化
         function initPhoneFormatter() {
+            // 電話號碼格式化
             const phoneInput = document.getElementById('contact_phone');
             if (phoneInput) {
                 phoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '').substring(0, 8);
+                    if (value.length > 4) {
+                        value = value.substring(0, 4) + ' ' + value.substring(4);
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            // WhatsApp 號碼格式化（只允許8位數字）
+            const whatsappInput = document.getElementById('contact_whatsapp');
+            if (whatsappInput) {
+                whatsappInput.addEventListener('input', function(e) {
                     let value = e.target.value.replace(/\D/g, '').substring(0, 8);
                     if (value.length > 4) {
                         value = value.substring(0, 4) + ' ' + value.substring(4);

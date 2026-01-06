@@ -443,7 +443,7 @@
             </div>
             
             <footer class="footer">
-                <p>&copy; 2024 香港質心教育 版權所有</p>
+                <p>&copy; 香港質心教育 版權所有</p>
             </footer>
         </div>
     </div>
@@ -844,14 +844,38 @@
                             <label style="display: block; font-size: 13px; color: #666; margin-bottom: 6px;">
                                 選擇確認的日期時段：
                             </label>
-                            <select id="confirm-slot" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <select id="confirm-slot" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;" onchange="toggleCustomSlot()">
                                 ${slotsOptions}
+                                <option value="__OTHER__">📝 其他（自訂日期時間）</option>
                             </select>
+                        </div>
+                        
+                        <div id="custom-slot-container" style="display: none; margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; color: #666; margin-bottom: 6px;">
+                                自訂日期時間：
+                            </label>
+                            <input type="text" id="custom-slot" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;" placeholder="例如：1/20 15:00-16:00">
                         </div>
                         
                         <div class="action-buttons">
                             <button class="btn btn-success" onclick="sendConfirmWithSlot(${index});">✓ 確認預約</button>
                             <button class="btn btn-danger" onclick="sendRejectWithReason(${index});">✗ 拒絕</button>
+                            <button class="btn btn-warning" onclick="deleteSubmission(${index}); closeModal();">🗑️ 刪除</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 「待客戶確認」狀態 - 允許管理員手動確認
+            if (sub.status === '待客戶確認') {
+                detailsHtml += `
+                    <div class="action-box" style="background: #fff8e1;">
+                        <div class="action-box-title">⏳ 等待客戶確認中</div>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
+                            確認郵件已發送，等待客戶回覆確認。如客戶已透過其他方式（電話/WhatsApp/微信）確認，可手動更新狀態。
+                        </p>
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="manualConfirm(${index});">✅ 已透過其他方式確認</button>
                             <button class="btn btn-warning" onclick="deleteSubmission(${index}); closeModal();">🗑️ 刪除</button>
                         </div>
                     </div>
@@ -876,8 +900,30 @@
             loadSubmissions();
         }
         
+        // 切換自訂時段輸入框
+        function toggleCustomSlot() {
+            const select = document.getElementById('confirm-slot');
+            const customContainer = document.getElementById('custom-slot-container');
+            if (select.value === '__OTHER__') {
+                customContainer.style.display = 'block';
+                document.getElementById('custom-slot').focus();
+            } else {
+                customContainer.style.display = 'none';
+            }
+        }
+        
         function sendConfirmWithSlot(index) {
-            const slot = document.getElementById('confirm-slot').value;
+            let slot = document.getElementById('confirm-slot').value;
+            
+            // 如果選擇了「其他」，使用自訂輸入
+            if (slot === '__OTHER__') {
+                slot = document.getElementById('custom-slot').value.trim();
+                if (!slot) {
+                    alert('請輸入自訂日期時段');
+                    return;
+                }
+            }
+            
             if (!slot) {
                 alert('請選擇一個確認的日期時段');
                 return;
@@ -951,6 +997,36 @@
         
         function sendReject(index) {
             sendRejectWithReason(index);
+        }
+        
+        // 管理員手動確認（透過其他方式確認）
+        function manualConfirm(index) {
+            if (!confirm('確定客戶已透過其他方式（電話/WhatsApp/微信）確認預約嗎？')) return;
+            
+            const sub = allSubmissions[index];
+            
+            // 更新本地狀態
+            allSubmissions[index].status = '已確認';
+            localStorage.setItem('submissions', JSON.stringify(allSubmissions));
+            
+            // 發送到 Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'clientConfirm',
+                    bookingId: sub.id
+                })
+            }).then(() => {
+                console.log('✅ 手動確認已發送到 Google Sheets');
+            }).catch(err => {
+                console.error('發送失敗：', err);
+            });
+            
+            alert('✅ 已標記為「已確認」');
+            closeModal();
+            loadSubmissions();
         }
         
         function deleteSubmission(index) {
