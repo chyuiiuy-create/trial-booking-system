@@ -80,7 +80,9 @@ function saveNewBooking(data) {
       '學生姓名',
       '年級',
       '科目',
-      '聯絡電話',
+      '微信',
+      'WhatsApp',
+      '電話',
       '電郵地址',
       '來源',
       '希望日期',
@@ -92,7 +94,7 @@ function saveNewBooking(data) {
     ]);
     
     // 設置表頭樣式
-    var headerRange = sheet.getRange('A1:N1');
+    var headerRange = sheet.getRange('A1:R1');
     headerRange.setFontWeight('bold');
     headerRange.setBackground('#4a86e8');
     headerRange.setFontColor('#ffffff');
@@ -105,7 +107,9 @@ function saveNewBooking(data) {
     data.studentName || '',     // 學生姓名
     data.grade || '',           // 年級
     data.subject || '',         // 科目
-    data.phone || '',           // 聯絡電話
+    data.contactWechat || '',   // 微信
+    data.contactWhatsapp || '', // WhatsApp
+    data.contactPhone || '',    // 電話
     data.email || '',           // 電郵地址
     data.source || '',          // 來源
     data.preferredDate || '',   // 希望日期
@@ -142,6 +146,13 @@ function sendAdminNotification(data) {
     typeText = '📝 新試堂預約';
   }
   
+  // 組合聯絡方式
+  var contactInfo = [];
+  if (data.contactWechat) contactInfo.push('微信: ' + data.contactWechat);
+  if (data.contactWhatsapp) contactInfo.push('WhatsApp: ' + data.contactWhatsapp);
+  if (data.contactPhone) contactInfo.push('電話: ' + data.contactPhone);
+  var contactStr = contactInfo.length > 0 ? contactInfo.join('\n    ') : '未提供';
+  
   var emailBody = typeText + '\n' +
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
     '📋 預約詳情：\n\n' +
@@ -150,8 +161,9 @@ function sendAdminNotification(data) {
     '  學生姓名：' + (data.studentName || '無') + '\n' +
     '  年級：' + (data.grade || '無') + '\n' +
     '  科目：' + (data.subject || '無') + '\n' +
-    '  聯絡電話：' + (data.phone || '無') + '\n' +
+    '  聯絡方式：\n    ' + contactStr + '\n' +
     '  電郵地址：' + (data.email || '未提供') + '\n' +
+    '  來源：' + (data.source || '未提供') + '\n' +
     '  希望日期/時段：' + (data.preferredDate || '無') + '\n\n' +
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
     '請登入管理後台處理此預約：\n' +
@@ -178,17 +190,22 @@ function confirmBooking(data) {
   var dataRange = sheet.getDataRange();
   var values = dataRange.getValues();
   
+  // 列索引（新增微信、WhatsApp、電話欄位後的對應位置）
+  // A:0預約ID, B:1提交時間, C:2學生姓名, D:3年級, E:4科目, 
+  // F:5微信, G:6WhatsApp, H:7電話, I:8電郵, J:9來源,
+  // K:10希望日期, L:11希望時段, M:12確認日期, N:13確認時段, O:14狀態, P:15備註
+  
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === data.bookingId) {
       // 更新確認日期、確認時段和狀態
-      sheet.getRange(i + 1, 11).setValue(data.confirmedDate);  // K列：確認日期
-      sheet.getRange(i + 1, 12).setValue(data.confirmedTime);  // L列：確認時段
-      sheet.getRange(i + 1, 13).setValue('待客戶確認');          // M列：狀態（等待家長確認）
+      sheet.getRange(i + 1, 13).setValue(data.confirmedDate);  // M列：確認日期
+      sheet.getRange(i + 1, 14).setValue(data.confirmedTime);  // N列：確認時段
+      sheet.getRange(i + 1, 15).setValue('待客戶確認');          // O列：狀態（等待家長確認）
       
       // 發送確認郵件
-      if (values[i][6] && values[i][6] !== '未提供') {
+      if (values[i][8] && values[i][8] !== '未提供') {
         sendConfirmationEmail(
-          values[i][6],  // 電郵
+          values[i][8],  // 電郵（I列）
           values[i][2],  // 學生姓名
           values[i][3],  // 年級
           values[i][4],  // 科目
@@ -222,16 +239,19 @@ function declineBooking(data) {
   var dataRange = sheet.getDataRange();
   var values = dataRange.getValues();
   
+  // 列索引（新欄位後的對應位置）
+  // I:8電郵, O:14狀態, P:15備註
+  
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === data.bookingId) {
       // 更新狀態和備註
-      sheet.getRange(i + 1, 13).setValue('已拒絕');          // M列：狀態
-      sheet.getRange(i + 1, 14).setValue(data.reason || ''); // N列：備註
+      sheet.getRange(i + 1, 15).setValue('已拒絕');          // O列：狀態
+      sheet.getRange(i + 1, 16).setValue(data.reason || ''); // P列：備註
       
       // 發送拒絕郵件
-      if (values[i][6] && values[i][6] !== '未提供') {
+      if (values[i][8] && values[i][8] !== '未提供') {
         sendDeclineEmail(
-          values[i][6],  // 電郵
+          values[i][8],  // 電郵（I列）
           values[i][2],  // 學生姓名
           data.reason
         );
@@ -288,21 +308,26 @@ function updateBookingStatus(data) {
   var studentName = data.studentName || '';
   var originalId = data.originalId || '';
   
+  // 列索引（新欄位後的對應位置）
+  // A:0預約ID, C:2學生姓名, D:3年級, E:4科目, 
+  // F:5微信, G:6WhatsApp, H:7電話, I:8電郵, J:9來源,
+  // K:10希望日期, L:11希望時段, M:12確認日期, N:13確認時段, O:14狀態, P:15備註
+  
   // 查找原預約
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === originalId) {
       if (data.type === 'cancel') {
         // 更新狀態為「已取消」
-        sheet.getRange(i + 1, 13).setValue('已取消');  // M列：狀態
-        sheet.getRange(i + 1, 14).setValue('客戶取消 - ' + (data.reason || '無原因') + ' (' + data.timestamp + ')');
+        sheet.getRange(i + 1, 15).setValue('已取消');  // O列：狀態
+        sheet.getRange(i + 1, 16).setValue('客戶取消 - ' + (data.reason || '無原因') + ' (' + data.timestamp + ')');
         
         // 發送通知給管理員
-        sendAdminCancelNotification(studentName, values[i][10], values[i][11], data.reason);
+        sendAdminCancelNotification(studentName, values[i][12], values[i][13], data.reason);
         
       } else if (data.type === 'change') {
         // 更新狀態為「更改中」
-        sheet.getRange(i + 1, 13).setValue('更改中');  // M列：狀態
-        sheet.getRange(i + 1, 14).setValue('客戶申請更改 - 新時段：' + data.newPreferredDate + ' (' + data.timestamp + ')');
+        sheet.getRange(i + 1, 15).setValue('更改中');  // O列：狀態
+        sheet.getRange(i + 1, 16).setValue('客戶申請更改 - 新時段：' + data.newPreferredDate + ' (' + data.timestamp + ')');
         
         // 添加新的預約記錄
         sheet.appendRow([
@@ -311,8 +336,11 @@ function updateBookingStatus(data) {
           studentName,                                    // 學生姓名
           values[i][3],                                   // 年級
           values[i][4],                                   // 科目
-          values[i][5],                                   // 電話
-          values[i][6],                                   // 電郵
+          values[i][5],                                   // 微信
+          values[i][6],                                   // WhatsApp
+          values[i][7],                                   // 電話
+          values[i][8],                                   // 電郵
+          values[i][9],                                   // 來源
           data.newPreferredDate,                          // 新希望日期
           '',                                             // 希望時段
           '',                                             // 確認日期
@@ -322,7 +350,7 @@ function updateBookingStatus(data) {
         ]);
         
         // 發送通知給管理員
-        sendAdminChangeNotification(studentName, values[i][10], values[i][11], data.newPreferredDate);
+        sendAdminChangeNotification(studentName, values[i][12], values[i][13], data.newPreferredDate);
       }
       break;
     }
@@ -398,14 +426,17 @@ function clientConfirmBooking(data) {
   var dataRange = sheet.getDataRange();
   var values = dataRange.getValues();
   
+  // 列索引（新欄位後的對應位置）
+  // C:2學生姓名, M:12確認日期, N:13確認時段, O:14狀態, P:15備註
+  
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === data.bookingId) {
       // 更新狀態為「已確認」
-      sheet.getRange(i + 1, 13).setValue('已確認');  // M列：狀態
-      sheet.getRange(i + 1, 14).setValue('客戶已確認 - ' + new Date().toLocaleString('zh-HK')); // N列：備註
+      sheet.getRange(i + 1, 15).setValue('已確認');  // O列：狀態
+      sheet.getRange(i + 1, 16).setValue('客戶已確認 - ' + new Date().toLocaleString('zh-HK')); // P列：備註
       
       // 發送通知給管理員
-      sendAdminClientConfirmNotification(values[i][2], values[i][10], values[i][11]);
+      sendAdminClientConfirmNotification(values[i][2], values[i][12], values[i][13]);
       
       break;
     }
@@ -569,7 +600,10 @@ function getAllBookings() {
   }
   
   // 轉換為對象數組
-  var headers = values[0];
+  // 列索引（新欄位後的對應位置）
+  // A:0預約ID, B:1提交時間, C:2學生姓名, D:3年級, E:4科目, 
+  // F:5微信, G:6WhatsApp, H:7電話, I:8電郵, J:9來源,
+  // K:10希望日期, L:11希望時段, M:12確認日期, N:13確認時段, O:14狀態, P:15備註
   var bookings = [];
   
   for (var i = 1; i < values.length; i++) {
@@ -580,17 +614,26 @@ function getAllBookings() {
       studentName: row[2] || '',
       grade: row[3] || '',
       subject: row[4] || '',
-      phone: row[5] || '',
-      email: row[6] || '',
-      source: row[7] || '',
-      preferredDate: row[8] || '',
-      preferredTime: row[9] || '',
-      confirmedDate: row[10] || '',
-      confirmedTime: row[11] || '',
-      status: row[12] || '待處理',
-      notes: row[13] || '',
+      contactWechat: row[5] || '',
+      contactWhatsapp: row[6] || '',
+      contactPhone: row[7] || '',
+      email: row[8] || '',
+      source: row[9] || '',
+      preferredDate: row[10] || '',
+      preferredTime: row[11] || '',
+      confirmedDate: row[12] || '',
+      confirmedTime: row[13] || '',
+      status: row[14] || '待處理',
+      notes: row[15] || '',
       type: 'booking' // 默認類型
     };
+    
+    // 組合聯絡電話（向後兼容）
+    var contactInfo = [];
+    if (booking.contactWechat) contactInfo.push('微信: ' + booking.contactWechat);
+    if (booking.contactWhatsapp) contactInfo.push('WhatsApp: ' + booking.contactWhatsapp);
+    if (booking.contactPhone) contactInfo.push('電話: ' + booking.contactPhone);
+    booking.phone = contactInfo.join(' | ');
     
     // 根據 ID 前綴判斷類型
     if (booking.id.startsWith('CL')) {

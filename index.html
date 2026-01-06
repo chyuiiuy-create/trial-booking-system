@@ -218,6 +218,50 @@
             color: #1565c0;
         }
         
+        /* 聯絡方式欄位樣式 */
+        .contact-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .contact-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .contact-icon {
+            font-size: 20px;
+            width: 30px;
+            text-align: center;
+        }
+        .contact-field .form-input {
+            flex: 1;
+        }
+        
+        /* 中心微信連結樣式 */
+        .wechat-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #07c160 0%, #05a84e 100%);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
+        }
+        .wechat-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(7, 193, 96, 0.4);
+        }
+        .wechat-link img {
+            width: 20px;
+            height: 20px;
+        }
+        
         @media (max-width: 600px) {
             .calendar-container {
                 flex-direction: column;
@@ -307,19 +351,33 @@
                 </h2>
                 
                 <div class="form-group">
-                    <label for="phone" class="form-label">
-                        聯絡電話 <span class="required">*</span>
-                    </label>
-                    <input type="tel" id="phone" name="phone" class="form-input" placeholder="例如：9123 4567" required>
-                    <span class="form-hint">請輸入香港手提電話號碼</span>
-                </div>
-                
-                <div class="form-group">
                     <label for="email" class="form-label">
                         電郵地址 <span class="required">*</span>
                         <span style="font-size: 11px; color: #666; font-weight: normal;">（用於接收確認通知）</span>
                     </label>
                     <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        其他聯絡方式 <span class="required">*</span>
+                        <span style="font-size: 11px; color: #666; font-weight: normal;">（微信/WhatsApp/電話，至少填寫一項）</span>
+                    </label>
+                    <div class="contact-fields">
+                        <div class="contact-field">
+                            <span class="contact-icon">💬</span>
+                            <input type="text" id="contact_wechat" name="contact_wechat" class="form-input" placeholder="微信號碼">
+                        </div>
+                        <div class="contact-field">
+                            <span class="contact-icon">📱</span>
+                            <input type="text" id="contact_whatsapp" name="contact_whatsapp" class="form-input" placeholder="WhatsApp 號碼">
+                        </div>
+                        <div class="contact-field">
+                            <span class="contact-icon">📞</span>
+                            <input type="tel" id="contact_phone" name="contact_phone" class="form-input" placeholder="電話號碼（如：9123 4567）">
+                        </div>
+                    </div>
+                    <span class="form-hint" id="contact-hint">請至少填寫一項聯絡方式</span>
                 </div>
                 
                 <div class="form-group">
@@ -432,6 +490,17 @@
                 <div class="info-item">
                     <span class="info-icon">📞</span>
                     <span class="info-text">5765 1008</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">💬</span>
+                    <span class="info-text">
+                        <a href="weixin://dl/add/Zhangkaixin0920" class="wechat-link" title="點擊添加微信好友">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .139.045c.133 0 .241-.11.241-.245 0-.06-.023-.12-.04-.177l-.325-1.233a.49.49 0 0 1 .177-.554c1.525-1.122 2.503-2.789 2.503-4.638 0-3.38-3.407-6.053-7.062-6.105zM13.92 12.9c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982z"/>
+                            </svg>
+                            添加微信：Zhangkaixin0920
+                        </a>
+                    </span>
                 </div>
             </div>
         </div>
@@ -668,14 +737,16 @@
         
         // 電話格式化
         function initPhoneFormatter() {
-            const phoneInput = document.getElementById('phone');
-            phoneInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '').substring(0, 8);
-                if (value.length > 4) {
-                    value = value.substring(0, 4) + ' ' + value.substring(4);
-                }
-                e.target.value = value;
-            });
+            const phoneInput = document.getElementById('contact_phone');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '').substring(0, 8);
+                    if (value.length > 4) {
+                        value = value.substring(0, 4) + ' ' + value.substring(4);
+                    }
+                    e.target.value = value;
+                });
+            }
         }
         
         // Google Apps Script URL
@@ -690,8 +761,12 @@
                 const studentName = document.getElementById('student_name').value.trim();
                 const grade = document.getElementById('grade').value;
                 const subject = document.getElementById('subject').value;
-                const phone = document.getElementById('phone').value.trim();
                 const email = document.getElementById('email').value.trim();
+                
+                // 獲取聯絡方式
+                const contactWechat = document.getElementById('contact_wechat').value.trim();
+                const contactWhatsapp = document.getElementById('contact_whatsapp').value.trim();
+                const contactPhone = document.getElementById('contact_phone').value.trim();
                 
                 // 獲取來源
                 const sourceRadio = document.querySelector('input[name="source"]:checked');
@@ -704,8 +779,15 @@
                     }
                 }
                 
-                if (!studentName || !grade || !subject || !phone || !email) {
+                if (!studentName || !grade || !subject || !email) {
                     alert('請填寫所有必填欄位（包括電郵地址）');
+                    return;
+                }
+                
+                // 驗證至少填寫一種聯絡方式
+                if (!contactWechat && !contactWhatsapp && !contactPhone) {
+                    alert('請至少填寫一項聯絡方式（微信/WhatsApp/電話）');
+                    document.getElementById('contact-hint').style.color = '#e74c3c';
                     return;
                 }
                 
@@ -732,6 +814,13 @@
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">處理中...</span>';
                 
+                // 組合聯絡方式
+                let contactInfo = [];
+                if (contactWechat) contactInfo.push('微信: ' + contactWechat);
+                if (contactWhatsapp) contactInfo.push('WhatsApp: ' + contactWhatsapp);
+                if (contactPhone) contactInfo.push('電話: ' + contactPhone);
+                const phone = contactInfo.join(' | ');
+                
                 // 準備數據
                 const formData = {
                     type: 'booking',
@@ -742,6 +831,9 @@
                     subject: subject,
                     phone: phone,
                     email: email,
+                    contactWechat: contactWechat,
+                    contactWhatsapp: contactWhatsapp,
+                    contactPhone: contactPhone,
                     source: source,
                     preferredDate: selectedList.join('; '),
                     preferredTime: '',

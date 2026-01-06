@@ -726,14 +726,40 @@
                         <span class="detail-label">科目</span>
                         <span class="detail-value">${sub.subject || '-'}</span>
                     </div>
+                    ${sub.contactWechat ? `
                     <div class="detail-row">
-                        <span class="detail-label">電話</span>
-                        <span class="detail-value"><a href="tel:${sub.phone}">${sub.phone || '-'}</a></span>
+                        <span class="detail-label">💬 微信</span>
+                        <span class="detail-value">${sub.contactWechat}</span>
                     </div>
+                    ` : ''}
+                    ${sub.contactWhatsapp ? `
+                    <div class="detail-row">
+                        <span class="detail-label">📱 WhatsApp</span>
+                        <span class="detail-value"><a href="https://wa.me/${sub.contactWhatsapp.replace(/\D/g, '')}">${sub.contactWhatsapp}</a></span>
+                    </div>
+                    ` : ''}
+                    ${sub.contactPhone ? `
+                    <div class="detail-row">
+                        <span class="detail-label">📞 電話</span>
+                        <span class="detail-value"><a href="tel:${sub.contactPhone}">${sub.contactPhone}</a></span>
+                    </div>
+                    ` : ''}
+                    ${sub.phone && !sub.contactWechat && !sub.contactWhatsapp && !sub.contactPhone ? `
+                    <div class="detail-row">
+                        <span class="detail-label">聯絡方式</span>
+                        <span class="detail-value">${sub.phone}</span>
+                    </div>
+                    ` : ''}
                     <div class="detail-row">
                         <span class="detail-label">電郵</span>
                         <span class="detail-value">${sub.email || '-'}</span>
                     </div>
+                    ${sub.source ? `
+                    <div class="detail-row">
+                        <span class="detail-label">得知來源</span>
+                        <span class="detail-value">${sub.source}</span>
+                    </div>
+                    ` : ''}
                     <div class="detail-row">
                         <span class="detail-label">預約日期時段</span>
                         <span class="detail-value">${sub.preferredDate || sub.selectedDates || '-'}</span>
