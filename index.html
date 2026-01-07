@@ -305,6 +305,13 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="school" class="form-label">
+                        就讀學校 <span class="required">*</span>
+                    </label>
+                    <input type="text" id="school" name="school" class="form-input" placeholder="請輸入學校名稱" required>
+                </div>
+                
+                <div class="form-group">
                     <label for="grade" class="form-label">
                         年級 <span class="required">*</span>
                     </label>
@@ -784,6 +791,7 @@
                 
                 // 驗證
                 const studentName = document.getElementById('student_name').value.trim();
+                const school = document.getElementById('school').value.trim();
                 const grade = document.getElementById('grade').value;
                 const subject = document.getElementById('subject').value;
                 const studentDifficulty = document.getElementById('student_difficulty').value.trim();
@@ -805,7 +813,7 @@
                     }
                 }
                 
-                if (!studentName || !grade || !subject) {
+                if (!studentName || !school || !grade || !subject) {
                     alert('請填寫所有必填欄位');
                     return;
                 }
@@ -855,6 +863,7 @@
                     id: 'BK' + Date.now().toString(36).toUpperCase(),
                     timestamp: new Date().toLocaleString('zh-HK'),
                     studentName: studentName,
+                    school: school,
                     grade: grade,
                     subject: subject,
                     studentDifficulty: studentDifficulty,
@@ -897,6 +906,7 @@
                     const params = new URLSearchParams({
                         type: 'booking',
                         name: studentName,
+                        school: school,
                         grade: grade,
                         subject: subject,
                         date: selectedList.join('; '),

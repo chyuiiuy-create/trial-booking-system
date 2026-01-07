@@ -236,6 +236,7 @@
                 
             } else {
                 // 新預約
+                const school = urlParams.get('school') || '-';
                 const grade = urlParams.get('grade') || '-';
                 const subject = urlParams.get('subject') || '-';
                 const date = urlParams.get('date') || '-';
@@ -245,6 +246,10 @@
                     <div class="detail-item">
                         <span class="detail-label">學生姓名</span>
                         <span class="detail-value">${studentName}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">就讀學校</span>
+                        <span class="detail-value">${school}</span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">年級</span>

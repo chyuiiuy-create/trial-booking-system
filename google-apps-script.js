@@ -78,6 +78,7 @@ function saveNewBooking(data) {
       '預約ID',
       '提交時間',
       '學生姓名',
+      '就讀學校',
       '年級',
       '科目',
       '學習困難',
@@ -106,6 +107,7 @@ function saveNewBooking(data) {
     data.id || '',              // 預約ID
     data.timestamp || '',       // 提交時間
     data.studentName || '',     // 學生姓名
+    data.school || '',          // 就讀學校
     data.grade || '',           // 年級
     data.subject || '',         // 科目
     data.studentDifficulty || '', // 學習困難
